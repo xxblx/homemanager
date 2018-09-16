@@ -1,0 +1,62 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+    <title>HomeManager</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <link rel="stylesheet" href="{{ static_url('bootstrap.min.css') }}" crossorigin="anonymous">
+    <style>
+    body {
+        padding-top: 5rem;
+    }
+    .core-template {
+        padding: 3rem 1.5rem;
+        text-align: center;
+    }
+    </style>
+
+    <script src="{{ static_url('hls.min.js') }}"></script>
+    <script src="{{ static_url('main.js') }}"></script>
+
+    {% block head %} {% end %}
+</head>
+
+<body>
+    <nav class="navbar navbar-expand-md navbar-dark bg-dark fixed-top">
+      <a class="navbar-brand" href="#">HomeManager</a>
+      <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarsExampleDefault" aria-controls="navbarsExampleDefault" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+
+      <div class="collapse navbar-collapse" id="navbarsExampleDefault">
+        <ul class="navbar-nav mr-auto">
+          <li class="nav-item">
+            <a class="nav-link" href="/">Home</a>
+          </li>
+          {% block dropdown %} {% end %}
+        </ul>
+
+        <ul class="navbar-nav form-inline my-2 my-lg-0">
+          <li class="form-inline nav-item my-2 my-lg-0">
+            <a class="nav-link" href="/logout">Logout</a>
+          </li>
+        </ul>
+
+      </div>
+    </nav>
+
+
+    <main role="main" class="container">
+    <div class="core-template">
+    {% block body %} {% end %}
+    </div>
+    </main>
+
+    {% block footer %} {% end %}
+    <script src="{{ static_url('jquery-3.3.1.slim.min.js') }}"></script>
+    <script src="{{ static_url('bootstrap.min.js') }}"></script>
+</body>
+
+</html>
+

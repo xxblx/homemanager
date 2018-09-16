@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+
+{% block dropdown %}
+  <li class="nav-item dropdown">
+    <a class="nav-link dropdown-toggle" href="#" id="dropdown01" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Video sources</a>
+    <div class="dropdown-menu" aria-labelledby="dropdown01">
+    {% for source in sources %}
+        <a class="dropdown-item" href="/source/{{source[0]}}">{{source[1]}}</a>
+    {% end %}
+    </div>
+  </li>
+{% end %}
+
+{% block body %}
+<div>
+    <h2>{{sources[source_idx][1]}}</h2>
+    <h4>{{sources[source_idx][2]}}</h4>
+    <video class="video" id="video{{sources[source_idx][0]}}" controls loop style="width: 720px;"></video>
+</div>
+
+<script>
+var videoId = getVideoId();
+playVideo(videoId);
+</script>
+
+{% end %}
