@@ -16,9 +16,19 @@ class TokenAuthHandler(ApiHandler):
         except tornado.web.MissingArgumentError:
             raise tornado.web.HTTPError(403, 'invalid token')
 
+        # Check does path have access restrictions
+        path = self.request.path.split()[-1]
+        if path in self.path_restrictions:
+            select_key = 'access_tokens'
+            args = (token, self.path_restrictions[path]['id'])
+        else:
+            select_key = 'tokens'
+            args = (token,)
+
+        # Select identity from db by token
         async with self.db_pool.acquire() as conn:
             async with conn.cursor() as cur:
-                await cur.execute(SELECT['tokens'], (token,))
+                await cur.execute(SELECT[select_key], args)
                 res = await cur.fetchall()
 
         if not res:

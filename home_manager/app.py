@@ -18,12 +18,17 @@ from .conf import DSN, DEBUG
 
 
 class WebApp(tornado.web.Application):
-    def __init__(self, loop, db_pool, videos):
+    def __init__(self, loop, db_pool, videos, access_list):
         self.loop = loop  # tornado wrapper for asyncio loop
         self.executor = ThreadPoolExecutor(4)
         self.db_pool = db_pool
+
         self.videos = videos
         self.videos_nums = set(v[0] for v in self.videos)
+
+        self.path_restrictions = {
+            v[1]: {'id': v[0], 'name': v[2]} for v in access_list
+        }
 
         handlers = [
             (r'/', MainPageHandler),
@@ -65,4 +70,7 @@ async def init_db():
             await cur.execute(SELECT['video'])
             videos = await cur.fetchall()
 
-    return db_pool, videos
+            await cur.execute(SELECT['access'])
+            access_list = await cur.fetchall()
+
+    return db_pool, videos, access_list
