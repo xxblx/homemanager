@@ -35,7 +35,7 @@ CREATE TABLE IF NOT EXISTS access_t (
     'access_tokens': """
 CREATE TABLE IF NOT EXISTS access_tokens_t (
     access_id SERIAL,
-    token_id TEXT
+    token_id SERIAL
 )
     """,
 
