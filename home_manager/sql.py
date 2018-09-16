@@ -41,7 +41,7 @@ CREATE TABLE IF NOT EXISTS access_tokens_t (
 
     'video': """
 CREATE TABLE IF NOT EXISTS video_t (
-    video_id INTEGER PRIMARY KEY,
+    video_id SERIAL PRIMARY KEY,
     video_path TEXT,
     source_name TEXT,
     comment TEXT
@@ -50,7 +50,7 @@ CREATE TABLE IF NOT EXISTS video_t (
 
     'motion': """
 CREATE TABLE IF NOT EXISTS motion_t (
-    motion_id INTEGER PRIMARY KEY,
+    motion_id SERIAL PRIMARY KEY,
     motion_data BYTEA,
     source_identity TEXT,
     motion_time INTEGER
