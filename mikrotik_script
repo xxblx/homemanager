@@ -1,0 +1,17 @@
+
+:local accessToken "token";
+:local baseUrl "host/api/person";
+
+:local checkPersonPhone [/ip dhcp-server lease find mac-address="mac_phone"]; 
+
+:local PersonId 10;
+
+:local PersonAtHome 0;
+:if ( $checkPersonPhone != "" ) do={
+    :set PersonAtHome 1;
+} 
+
+:local fullUrlPerson "$baseUrl\?token=$accessToken&username_id=$PersonId&status=$PersonAtHome";
+
+/tool fetch url=$fullUrlPerson mode=http;
+
