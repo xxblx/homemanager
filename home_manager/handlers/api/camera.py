@@ -5,27 +5,8 @@ from datetime import datetime
 
 import tornado.web
 
-from ...sql import SELECT, UPDATE, INSERT
+from ...sql import SELECT, INSERT
 from .auth import TokenAuthHandler
-
-
-class PersonHandler(TokenAuthHandler):
-    """ Class for getting status updates from router """
-
-    # TODO: split access from different tokens
-    @tornado.web.authenticated
-    async def get(self):
-        username_id = self.get_argument('username_id')
-        status = self.get_argument('status')
-
-        if int(status) == 1:
-            status = True
-        else:
-            status = False
-
-        async with self.db_pool.acquire() as conn:
-            async with conn.cursor() as cur:
-                await cur.execute(UPDATE['status'], (status, username_id))
 
 
 class MotionHandler(TokenAuthHandler):

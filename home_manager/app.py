@@ -10,7 +10,8 @@ from .handlers.auth import LoginHandler, LogoutHandler
 from .handlers.main import MainPageHandler, SourcePageHandler
 from .handlers.video import VideoServeHandler
 
-from .handlers.api.main import PersonHandler, MotionHandler
+from .handlers.api.user import StatusHandler
+from .handlers.api.camera import MotionHandler
 
 from .sql import SELECT
 
@@ -35,8 +36,8 @@ class WebApp(tornado.web.Application):
             (r'/login', LoginHandler),
             (r'/logout', LogoutHandler),
             (r'/source/([0-9]*/?)', SourcePageHandler),
-            (r'/api/person', PersonHandler),
-            (r'/api/motion', MotionHandler)
+            (r'/api/user/status', StatusHandler),
+            (r'/api/camera/motion', MotionHandler)
         ]
 
         # Add video paths to handlers
