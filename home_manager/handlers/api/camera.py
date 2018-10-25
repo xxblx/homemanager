@@ -17,7 +17,7 @@ class MotionHandler(TokenAuthHandler):
 
     @tornado.web.authenticated
     async def get(self):
-        pic = self.get_argument('pic')
+        pic = tornado.escape.utf8(self.get_argument('pic'))
 
         async with self.db_pool.acquire() as conn:
             async with conn.cursor() as cur:
