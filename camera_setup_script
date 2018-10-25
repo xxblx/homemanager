@@ -1,0 +1,39 @@
+#!/bin/sh
+
+source camera_module
+
+camera_json=$(curl "$URL_SETUP")
+camera_rtsp=$(echo $camera_json | jq ".rtsp")
+camera_motion_detect=$(echo $camera_json | jq ".motion_detect")
+camera_night_mode=$(echo $camera_json | jq ".night_mode")
+
+if [[ $camera_rtsp = "1" ]]
+then 
+    if [[ -z $(/system/sdcard/controlscripts/rtsp-h264 status) ]]
+    then
+        /system/sdcard/controlscripts/rtsp-h264 start
+    fi
+else
+    /system/sdcard/controlscripts/rtsp-h264 stop
+fi 
+
+if [[ $camera_motion_detect = "1" ]]
+then 
+    if [[ $(/system/sdcard/bin/setconf -g m) = "-1" ]]
+    then
+        motion_detect_on
+    fi
+else
+    motion_detect_off
+fi 
+
+if [[ $camera_night_mode = "1" ]]
+then 
+    if [[ $(cat /var/run/ircut) = "1" ]] 
+    then
+        night_on
+    fi
+else
+    night_off
+fi
+

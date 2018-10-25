@@ -1,0 +1,51 @@
+#!/bin/sh
+
+function night_on() {
+    # ir led on
+    setgpio 49 0
+    
+    # ir cut off
+    setgpio 26 0
+    setgpio 25 1
+    sleep 1
+    setgpio 25 0
+    echo "0" > /var/run/ircut    
+}
+
+
+function night_off() {
+    # ir led off
+    setgpio 49 1
+    
+    # ir cut on
+    setgpio 25 0
+    setgpio 26 1
+    sleep 1
+    setgpio 26 0
+    echo "1" > /var/run/ircut
+}
+
+
+function motion_detect_on() {
+    motion_sensitivity=4
+    if [ -f /system/sdcard/config/motion.conf ]; then
+        source /system/sdcard/config/motion.conf
+    fi
+    if [ $motion_sensitivity -eq -1 ]; then
+         motion_sensitivity=4
+    fi
+    /system/sdcard/bin/setconf -k m -v $motion_sensitivity
+    rewrite_config /system/sdcard/config/motion.conf motion_sensitivity $motion_sensitivity
+}
+
+
+function motion_detect_off() {
+    /system/sdcard/bin/setconf -k m -v -1
+}
+
+
+TOKEN="access_token"
+HOST="host"
+URL_MOTION="${HOST}/api/camera/motion?token=${TOKEN}&pic="
+URL_SETUP="${HOST}/api/camera/setup?token=${TOKEN}"
+
