@@ -63,6 +63,11 @@ class WebApp(tornado.web.Application):
 
 
 async def init_db():
+    """ Connect to database and get initial data
+
+    :return: connection_pool, list of video sources, accesses list
+    """
+
     db_pool = await aiopg.create_pool(dsn=DSN)
 
     async with await db_pool.acquire() as conn:

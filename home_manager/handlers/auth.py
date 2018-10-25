@@ -22,9 +22,11 @@ class LoginHandler(BaseHandler):
                 await cur.execute(SELECT['users'], (username,))
                 _res = await cur.fetchall()
 
+        # If user doesn't exist
         if not _res:
             raise tornado.web.HTTPError(403, 'invalid username or password')
 
+        # Check password
         res = _res[0][0].tobytes()
         passwd_check = await self.verify_password(
             tornado.escape.utf8(passwd),

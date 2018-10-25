@@ -7,6 +7,7 @@ import tornado.web
 
 
 class TokenAuthHandler(ApiHandler):
+    """ Class for token based auth for api """
 
     async def prepare(self):
         self.current_user = None
@@ -26,6 +27,8 @@ class TokenAuthHandler(ApiHandler):
             args = (token,)
 
         # Select identity from db by token
+        # If path has retrictions but the token is not allowed for the path
+        # the result would be empty
         async with self.db_pool.acquire() as conn:
             async with conn.cursor() as cur:
                 await cur.execute(SELECT[select_key], args)

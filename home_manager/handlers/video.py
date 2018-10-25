@@ -11,6 +11,8 @@ from .base import BaseHandler
 
 
 class VideoServeHandler(BaseHandler):
+    """ Class for aserving videofiles for authenticated users """
+
     chunk_size = 1024 * 1024  # 1 MiB
 
     def initialize(self, dir_path):

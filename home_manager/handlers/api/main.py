@@ -10,6 +10,8 @@ from .auth import TokenAuthHandler
 
 
 class PersonHandler(TokenAuthHandler):
+    """ Class for getting status updates from router """
+
     # TODO: split access from different tokens
     @tornado.web.authenticated
     async def get(self):
@@ -27,6 +29,8 @@ class PersonHandler(TokenAuthHandler):
 
 
 class MotionHandler(TokenAuthHandler):
+    """ Class for capturing motion pictures from cameras """
+
     @tornado.web.authenticated
     async def get(self):
         pic = self.get_argument('pic')
