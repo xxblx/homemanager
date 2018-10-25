@@ -1,7 +1,5 @@
 # -*- coding: utf-8 -*-
 
-from functools import wraps
-
 import bcrypt
 import tornado.web
 import tornado.concurrent
