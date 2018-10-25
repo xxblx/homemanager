@@ -22,13 +22,16 @@ class LoginHandler(BaseHandler):
                 await cur.execute(SELECT['users'], (username,))
                 _res = await cur.fetchall()
 
+        if not _res:
+            raise tornado.web.HTTPError(403, 'invalid username or password')
+
         res = _res[0][0].tobytes()
         passwd_check = await self.verify_password(
             tornado.escape.utf8(passwd),
             res
         )
         if not passwd_check:
-            raise tornado.web.HTTPError(403, 'invalid password')
+            raise tornado.web.HTTPError(403, 'invalid username or password')
 
         self.set_secure_cookie('username', username)
         self.redirect(self.get_argument('next', '/'))
