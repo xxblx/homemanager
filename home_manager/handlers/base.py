@@ -45,15 +45,5 @@ class BaseHandler(tornado.web.RequestHandler):
     def verify_password(self, passwd, passwd_hash):
         return bcrypt.checkpw(passwd, passwd_hash)
 
-    def run_in_loop_executor(method):
-        """ Decorator for queries to sqlite from Handlers """
-
-        @wraps(method)
-        async def wrapper(self, *args):
-            future = self.loop.run_in_executor(None, method, self, *args)
-            data = await future
-            return data
-        return wrapper
-
     def get_current_user(self):
         return self.get_secure_cookie('username')
