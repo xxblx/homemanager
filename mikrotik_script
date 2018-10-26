@@ -1,17 +1,17 @@
 
 :local accessToken "token";
-:local baseUrl "host/api/person";
+:local baseUrl "host/api/user/status";
 
-:local checkPersonPhone [/ip dhcp-server lease find mac-address="mac_phone"]; 
+:local checkUserDevice [/ip dhcp-server lease find mac-address="device_mac_address"]; 
 
-:local PersonId 10;
+:local userId 1;
 
-:local PersonAtHome 0;
-:if ( $checkPersonPhone != "" ) do={
-    :set PersonAtHome 1;
+:local userAtHome 0;
+:if ( $checkUserDevice != "" ) do={
+    :set userAtHome 1;
 } 
 
-:local fullUrlPerson "$baseUrl\?token=$accessToken&username_id=$PersonId&status=$PersonAtHome";
+:local fullUrlUser "$baseUrl\?token=$accessToken&username_id=$userId&status=$userAtHome";
 
-/tool fetch url=$fullUrlPerson mode=http;
+/tool fetch url=$fullUrlUser mode=http;
 
