@@ -9,9 +9,7 @@
 :local userAtHome 0;
 :if ( $checkUserDevice != "" ) do={
     :set userAtHome 1;
-} 
+}
 
-:local fullUrlUser "$baseUrl\?token=$accessToken&username_id=$userId&status=$userAtHome";
-
-/tool fetch url=$fullUrlUser mode=http;
+/tool fetch mode=http url=$baseUrl http-method=post http-data="token=$accessToken&username_id=$userId&status=$userAtHome"
 

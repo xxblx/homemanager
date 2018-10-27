@@ -10,7 +10,7 @@ class StatusHandler(TokenAuthHandler):
     """ Class for users statuses updates """
 
     @tornado.web.authenticated
-    async def get(self):
+    async def post(self):
         username_id = self.get_argument('username_id')
         status = self.get_argument('status')
 
