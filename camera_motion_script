@@ -1,0 +1,17 @@
+#!/bin/sh
+
+source /system/sdcard/server_control/camera_module
+
+if [ -f /tmp/camera_motion_script.lock ]; then
+    echo "camera_motion_script is running, /tmp/sendPictureMail.lock is present"
+    exit 1
+fi
+
+touch /tmp/camera_motion_script.lock
+
+img_data=`/system/sdcard/bin/getimage | /system/sdcard/bin/openssl enc -base64`
+
+curl -d "token=${TOKEN}&pic=${img_data}" $URL_MOTION
+
+rm -rf /tmp/camera_motion_script.lock
+
