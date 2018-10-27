@@ -3,15 +3,16 @@
 source /system/sdcard/config/userscripts/camera_module
 
 if [ -f /tmp/camera_motion_script.lock ]; then
-    echo "camera_motion_script is running, /tmp/sendPictureMail.lock is present"
+    echo "camera_motion_script is running"
     exit 1
 fi
 
 touch /tmp/camera_motion_script.lock
 
-img_data=`/system/sdcard/bin/getimage | /system/sdcard/bin/openssl enc -base64`
+/system/sdcard/bin/getimage > /tmp/camera_motion_script.jpg
 
-curl -d "token=${TOKEN}&pic=${img_data}" $URL_MOTION
+curl -i -X POST -H "Content-Type: multipart/form-data" -F "token=${TOKEN}" -F "pic=@/tmp/camera_motion_script.jpg" $URL_MOTION
 
+rm -rf /tmp/camera_motion_script.jpg
 rm -rf /tmp/camera_motion_script.lock
 

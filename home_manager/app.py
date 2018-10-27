@@ -13,6 +13,8 @@ from .handlers.video import VideoServeHandler
 from .handlers.api.user import StatusHandler
 from .handlers.api.camera import MotionHandler, SetupHandler
 
+from .notifications.manager import NotificationManager
+
 from .sql import SELECT
 
 from .conf import DSN, DEBUG
@@ -26,6 +28,8 @@ class WebApp(tornado.web.Application):
 
         self.videos = videos
         self.videos_nums = set(v[0] for v in self.videos)
+
+        self.notification_manager = NotificationManager(loop)
 
         self.path_restrictions = {
             v[1]: {'id': v[0], 'name': v[2]} for v in access_list

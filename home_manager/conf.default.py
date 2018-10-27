@@ -15,3 +15,21 @@ LOCATION = (
     'Europe/London',  # time zone
     0  # elevation
 )
+
+NOTIFICATIONS_SETTINGS = {
+    'telegram': False,
+    # 'email': False,
+    'date_format': '%d.%m.%Y %H:%M:%S'
+}
+
+TELEGRAM_SETTINGS = {
+    'bot_id': '0',
+    'chat_id': 0,
+
+    # It is possible to use proxies if telegram is blocked in your region
+    # 'proxy': {
+    #     'http': 'http://192.168.1.1:8080',
+    #     'https': 'http://192.168.1.1:8080'
+    # }
+    'proxy': {}
+}

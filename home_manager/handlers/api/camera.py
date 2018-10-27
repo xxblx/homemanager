@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
 
+import base64
+
 from time import mktime
 from datetime import datetime
 
@@ -17,19 +19,30 @@ class MotionHandler(TokenAuthHandler):
 
     @tornado.web.authenticated
     async def post(self):
-        pic = tornado.escape.utf8(self.get_argument('pic'))
+        datetime_now = datetime.now()
+        pic = self.request.files['pic'][0]
 
+        if pic['content_type'] != 'image/jpeg':
+            raise tornado.web.HTTPError(400)
+
+        # Check does user at home
         async with self.db_pool.acquire() as conn:
             async with conn.cursor() as cur:
                 await cur.execute(SELECT['status'])
                 res = await cur.fetchall()
 
+        # Send notifications
         if not res:
-            # TODO: send email and telegram message
-            pass
+            await self.notification_manager.send_notification(
+                datetime_now,
+                self.current_user['identity'],
+                pic['body']
+            )
 
-        now = mktime(datetime.now().utctimetuple())
-        values = (pic, self.current_user['identity'], now)
+        # Save base64 encoded photo in db
+        pic_encoded = base64.encodebytes(pic['body'])
+        now = mktime(datetime_now.utctimetuple())
+        values = (pic_encoded, self.current_user['identity'], now)
 
         async with self.db_pool.acquire() as conn:
             async with conn.cursor() as cur:
@@ -50,6 +63,8 @@ class SetupHandler(TokenAuthHandler):
         return sun['sunrise'] <= _now <= sun['sunset']
 
     async def get(self):
+
+        # Check does user at home
         async with self.db_pool.acquire() as conn:
             async with conn.cursor() as cur:
                 await cur.execute(SELECT['status'])
