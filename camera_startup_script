@@ -11,21 +11,9 @@ fi
 
 swapon /system/sdcard/swapfile
 
-# Turn off IR Led
-setgpio 49 1
-
-# Turn on IR Cut
-setgpio 25 0
-setgpio 26 1
-sleep 1
-setgpio 26 0
-echo "1" > /var/run/ircut
-
-# Turn off RTSP
+night_off
 /system/sdcard/controlscripts/rtsp-h264 stop
-
-# Turn off motion detect
-/system/sdcard/bin/setconf -k m -v -1
+motion_detect_off
 
 # Request camera's setting from server 
 /system/sdcard/config/userscripts/camera_setup_script 

@@ -1,5 +1,7 @@
 #!/bin/sh
 
+source /system/sdcard/scripts/common_functions.sh
+
 function night_on() {
     # ir led on
     setgpio 49 0
