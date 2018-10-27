@@ -1,6 +1,6 @@
 #!/bin/sh
 
-source /system/sdcard/server_control/camera_module
+source /system/sdcard/config/userscripts/camera_module
 
 camera_json=$(curl "$URL_SETUP")
 camera_rtsp=$(echo $camera_json | jq ".rtsp")
