@@ -46,6 +46,6 @@ function motion_detect_off() {
 
 TOKEN="access_token"
 HOST="host"
-URL_MOTION="${HOST}/api/camera/motion?token=${TOKEN}&pic="
+URL_MOTION="${HOST}/api/camera/motion"
 URL_SETUP="${HOST}/api/camera/setup?token=${TOKEN}"
 
