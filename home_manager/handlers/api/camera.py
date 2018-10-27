@@ -16,7 +16,7 @@ class MotionHandler(TokenAuthHandler):
     """ Class for capturing motion pictures from cameras """
 
     @tornado.web.authenticated
-    async def get(self):
+    async def post(self):
         pic = tornado.escape.utf8(self.get_argument('pic'))
 
         async with self.db_pool.acquire() as conn:
