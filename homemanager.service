@@ -1,0 +1,13 @@
+[Unit]
+Description=Start tornado web server with HomeManager app
+After=network.target
+
+[Service]
+Type=simple
+User=hmuser
+ExecStart=/path/python /path/run_home_manager.py
+Restart=on-failure
+
+[Install]
+WantedBy=multi-user.target
+
