@@ -23,7 +23,11 @@ This solution is not suitable for using in the production and may have some secu
 ```
 * Install and configure PostgreSQL, create db and user. [A quick start on Fedora](https://fedoramagazine.org/postgresql-quick-start-fedora-24/).
 * Copy `home_manager/conf.default.py` to `home_manager/conf.py` and edit `home_manager/conf.py`
-* Add user and tokens with `db_manage.py`
+* First init (create tables, etc)
+```
+$ ./db_manage.py init
+```
+* Add user and tokens
 ```
 $ ./db_manage.py users -u username
 $ ./db_manage.py tokens -i mikrotik
@@ -45,6 +49,12 @@ $ ./db_manage.py list-access
 $ ./db_manage.py -a 1 -i mikrotik
 $ ./db_manage.py -a 2 -i camera-room camera-kitchen
 $ ./db_manage.py -a 3 -i camera-room camera-kitchen
+```
+* Add video sources 
+```
+# use paths from units like ffmpeg-rtsp-hls.service
+$ ./db_manage.py video -p /path/video/camera1/video.m3u8 -n camera1 -c room
+$ ./db_manage.py video -p /path/video/camera2/video.m3u8 -n camera2 -c kitchen
 ```
 * Edit `homemanager.service`, enter correct paths and place the file to `/etc/systemd/system`
 * Start and enable systemd unit
