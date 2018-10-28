@@ -81,10 +81,10 @@ $ ./db_manage.py video -p /path/video/camera2/video.m3u8 -n camera2 -c kitchen
 Swap have to be enabled on camera for motion detections. See [this issue](https://github.com/EliasKotlyar/Xiaomi-Dafang-Hacks/issues/552) for details. Script `script/camera_startup_script` includes all required commands for that. If you have completed all steps from installation instructions, everything should work fine. Additional actions are not required. 
 
 ### Telegram notifications
-* Set `NOTIFICATIONS_SETTINGS['telegram']` = 'True' in `home_manager/conf.py`
+* Set `NOTIFICATIONS_SETTINGS['telegram']` = `True` in `home_manager/conf.py`
 * [Register your bot](https://core.telegram.org/bots#6-botfather) and set correct `TELEGRAM_SETTINGS['bot_id']` in `home_manager/conf.py`
 * Add bot to a chat
-* Set `TELEGRAM_SETTINGS['chat_id']` in `home_manager/conf.py` (you are able to use link like `https://api.telegram.org/bot<bot_id>/getUpdates`, chat_id is presented in logs if you have added your bot to chat)
+* Set `TELEGRAM_SETTINGS['chat_id']` in `home_manager/conf.py` (you are able to use link like `https://api.telegram.org/bot<bot_id>/getUpdates`, chat_id is presented in logs if you have added your bot to a chat)
 * Enter proxies to `TELEGRAM_SETTINGS['proxy']` if telegram is blocked in your region
 
 ### Email notifications
