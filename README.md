@@ -7,6 +7,14 @@ HomeManager is designed for personal usage at home's local network (i.e. without
 
 This solution is not suitable for using in the production and may have some security weaknesses (for example, token-based auth mechanism doesn't support tokens renew process).
 
+## How it works
+If user at home rtsp feed and motion detection are disabled, night-mode settings are ignored. When user has left home night-mode settings are configuring according to the current time (depends on sunrise and sunset), rtsp feed and motion detection are turning on. 
+
+* HomeManager is running on some kind of home server
+* Router checks status of user's device and notifies HomeManager
+* Camera requests settings from HomeManager and apply them 
+* User is able to open web ui and watch the stream if rtsp feed is active	
+
 # Installation
 ## HomeManager
 * Create user 
@@ -103,9 +111,15 @@ mount -o remount,rw /system/sdcard
 ```
 Check [this issue](https://github.com/EliasKotlyar/Xiaomi-Dafang-Hacks/issues/409). 
 
+## Dependencies and system requirements
+* [Custom firmware](https://github.com/EliasKotlyar/Xiaomi-Dafang-Hacks) for cameras
+* [Python](http://www.python.org) (3.5 or newer) and [Tornado](https://github.com/tornadoweb/tornado) (5.0 or newer)
+* [PostgreSQL](http://www.postgresql.org) and [psycopg2](http://initd.org/psycopg), [aiopg](https://github.com/aio-libs/aiopg)
+* [ffmpeg](https://ffmpeg.org)
+* [bcrypt](https://github.com/pyca/bcrypt)
+* [Astral](https://github.com/sffjunkie/astral)
+* [requests](https://github.com/requests/requests) 
+
 ## License
 HomeManager is free and opensource software, it is licensed under GNU GPL 3 (or newer) license. Check `LICENSE` for details.
-
-
-
 
