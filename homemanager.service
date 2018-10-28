@@ -1,6 +1,7 @@
 [Unit]
 Description=Start tornado web server with HomeManager app
 After=network.target
+Requires=postgresql.service
 
 [Service]
 Type=simple

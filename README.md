@@ -3,9 +3,17 @@
 
 HomeManager is a simple solution for in-home ip cameras management. It allows to control devices with special politics and stream videos from cameras (rtsp) to web (hls).
 
-HomeManager is designed for personal usage at home's local network (i.e. without access from the internet) with Mikrotik router and Xiaomi Xiaofang 1S cameras. You have to flash [custom firmware](https://github.com/EliasKotlyar/Xiaomi-Dafang-Hacks) for using these camera models with HomeManager. 
+HomeManager is designed for personal usage at home's local network (i.e. without access from the internet) with some kind of home server (where the app is installed), Mikrotik router and Xiaomi Xiaofang 1S cameras. You have to flash [custom firmware](https://github.com/EliasKotlyar/Xiaomi-Dafang-Hacks) for using these camera models with HomeManager. 
 
 This solution is not suitable for using in the production and may have some security weaknesses (for example, token-based auth mechanism doesn't support tokens renew process).
+
+## How it works
+If user at home rtsp feed and motion detection are disabled, night-mode settings are ignored. When user has left home night-mode settings are configuring according to the current time (depends on sunrise and sunset), rtsp feed and motion detection are turning on. 
+
+* HomeManager is running on some kind of home server
+* Router checks status of user's device and notifies HomeManager
+* Camera requests settings from HomeManager and apply them 
+* User is able to open web ui and watch the stream if rtsp feed is active	
 
 # Installation
 ## HomeManager
@@ -23,7 +31,11 @@ This solution is not suitable for using in the production and may have some secu
 ```
 * Install and configure PostgreSQL, create db and user. [A quick start on Fedora](https://fedoramagazine.org/postgresql-quick-start-fedora-24/).
 * Copy `home_manager/conf.default.py` to `home_manager/conf.py` and edit `home_manager/conf.py`
-* Add user and tokens with `db_manage.py`
+* First init (create tables, etc)
+```
+$ ./db_manage.py init
+```
+* Add user and tokens
 ```
 $ ./db_manage.py users -u username
 $ ./db_manage.py tokens -i mikrotik
@@ -45,6 +57,12 @@ $ ./db_manage.py list-access
 $ ./db_manage.py -a 1 -i mikrotik
 $ ./db_manage.py -a 2 -i camera-room camera-kitchen
 $ ./db_manage.py -a 3 -i camera-room camera-kitchen
+```
+* Add video sources 
+```
+# use paths from units like ffmpeg-rtsp-hls.service
+$ ./db_manage.py video -p /path/video/camera1/video.m3u8 -n camera1 -c room
+$ ./db_manage.py video -p /path/video/camera2/video.m3u8 -n camera2 -c kitchen
 ```
 * Edit `homemanager.service`, enter correct paths and place the file to `/etc/systemd/system`
 * Start and enable systemd unit
@@ -71,10 +89,10 @@ $ ./db_manage.py -a 3 -i camera-room camera-kitchen
 Swap have to be enabled on camera for motion detections. See [this issue](https://github.com/EliasKotlyar/Xiaomi-Dafang-Hacks/issues/552) for details. Script `script/camera_startup_script` includes all required commands for that. If you have completed all steps from installation instructions, everything should work fine. Additional actions are not required. 
 
 ### Telegram notifications
-* Set `NOTIFICATIONS_SETTINGS['telegram']` = 'True' in `home_manager/conf.py`
+* Set `NOTIFICATIONS_SETTINGS['telegram']` = `True` in `home_manager/conf.py`
 * [Register your bot](https://core.telegram.org/bots#6-botfather) and set correct `TELEGRAM_SETTINGS['bot_id']` in `home_manager/conf.py`
 * Add bot to a chat
-* Set `TELEGRAM_SETTINGS['chat_id']` in `home_manager/conf.py` (you are able to use link like `https://api.telegram.org/bot<bot_id>/getUpdates`, chat_id is presented in logs if you have added your bot to chat)
+* Set `TELEGRAM_SETTINGS['chat_id']` in `home_manager/conf.py` (you are able to use link like `https://api.telegram.org/bot<bot_id>/getUpdates`, chat_id is presented in logs if you have added your bot to a chat)
 * Enter proxies to `TELEGRAM_SETTINGS['proxy']` if telegram is blocked in your region
 
 ### Email notifications
@@ -93,9 +111,15 @@ mount -o remount,rw /system/sdcard
 ```
 Check [this issue](https://github.com/EliasKotlyar/Xiaomi-Dafang-Hacks/issues/409). 
 
+## Dependencies and system requirements
+* [Custom firmware](https://github.com/EliasKotlyar/Xiaomi-Dafang-Hacks) for cameras
+* [Python](http://www.python.org) (3.5 or newer) and [Tornado](https://github.com/tornadoweb/tornado) (5.0 or newer)
+* [PostgreSQL](http://www.postgresql.org) and [psycopg2](http://initd.org/psycopg), [aiopg](https://github.com/aio-libs/aiopg)
+* [ffmpeg](https://ffmpeg.org)
+* [bcrypt](https://github.com/pyca/bcrypt)
+* [Astral](https://github.com/sffjunkie/astral)
+* [requests](https://github.com/requests/requests) 
+
 ## License
 HomeManager is free and opensource software, it is licensed under GNU GPL 3 (or newer) license. Check `LICENSE` for details.
-
-
-
 
