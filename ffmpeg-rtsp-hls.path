@@ -1,0 +1,10 @@
+[Unit]
+Description=Path-based activation unit for ffmpeg-rtsp-hls.service
+After=network.target
+
+[Service]
+PathExists=/path/camera-identity/active
+
+[Install]
+WantedBy=multi-user.target
+

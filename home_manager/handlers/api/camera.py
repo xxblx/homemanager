@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 
+import os
 import base64
 
 from time import mktime
@@ -53,6 +54,16 @@ class SetupHandler(TokenAuthHandler):
     """ Class for sharing setting to cameras """
 
     camera_settings = {'night_mode': 0, 'rtsp': 0, 'motion_detect': 0}
+    __activation_file = None
+
+    @property
+    def active_file(self):
+        """ Get path of 'active' file in identity's directory
+
+        :return: [:class:`str`] path to 'active' file
+        """
+
+        return self.path_units_files[self.current_user['identity']]
 
     def check_sun(self):
         """ Check is current time between sunrise and sunset """
@@ -70,14 +81,23 @@ class SetupHandler(TokenAuthHandler):
                 await cur.execute(SELECT['status'])
                 res = await cur.fetchall()
 
-        # Turn on RTSP and motion detect if users are not at home
         camera_settings = self.camera_settings.copy()
+
+        # Turn on RTSP and motion detect if users are not at home
         if not res:
+            # `ffmpeg-rtsp-hls.service` uses path-based activation
+            if not os.path.exists(self.active_file):
+                open(self.active_file, 'a').close()
+
             for k in ('rtsp', 'motion_detect'):
                 camera_settings[k] = 1
 
             # Night mode depends on local time
             if not self.check_sun():
                 camera_settings['night_mode'] = 1
+
+        else:
+            if os.path.exists(self.active_file):
+                os.remove(self.active_file)
 
         self.write(camera_settings)

@@ -1,7 +1,7 @@
 
 # HomeManager
 
-HomeManager is a simple solution for in-home ip cameras management. It allows to control devices with special politics and stream videos from cameras (rtsp) to web (hls).
+HomeManager is a simple solution for in-home ip cameras management. It allows to control devices with special politics and streams videos from cameras (rtsp) to web (hls).
 
 HomeManager is designed for personal usage at home's local network (i.e. without access from the internet) with some kind of home server (where the app is installed), Mikrotik router and Xiaomi Xiaofang 1S cameras. You have to flash [custom firmware](https://github.com/EliasKotlyar/Xiaomi-Dafang-Hacks) for using these camera models with HomeManager. 
 
@@ -13,7 +13,8 @@ If user at home rtsp feed and motion detection are disabled, night-mode settings
 * HomeManager is running on some kind of home server
 * Router checks status of user's device and notifies HomeManager
 * Camera requests settings from HomeManager and apply them 
-* User is able to open web ui and watch the stream if rtsp feed is active	
+* User is able to open web ui and watch the stream if rtsp feed is active
+* HomeManager sends telegram notifications to user if motion is detected
 
 # Installation
 ## HomeManager
@@ -21,13 +22,15 @@ If user at home rtsp feed and motion detection are disabled, night-mode settings
 ```
 # useradd hmuser -m -s /sbin/nologin
 ```
-* Edit `ffmpeg-rtsp-hls.service`, enter correct path and address of rtsp feed
-* If you have few cameras, create copies of `ffmpeg-rtsp-hls.service` and edit them
-* Place `ffmpeg-rtsp-hls.service` to `/etc/systemd/system`
-* Start and enable systemd unit
+* Define identity (id) of your camera, example: `camera-room` 
+* Edit `ffmpeg-rtsp-hls.service` and `ffmpeg-rtsp-hls.path`, enter correct paths and address of rtsp feed
+  * _**Note**: use the same replacement for "/path/camera-identity" in both files_
+* If you have few cameras, create copies of `ffmpeg-rtsp-hls.service` and `ffmpeg-rtsp-hls.path`, edit them
+* Place `ffmpeg-rtsp-hls.service` and `ffmpeg-rtsp-hls.path` to `/etc/systemd/system`
+* Start and enable path-unit
 ```
-# systemctl start ffmpeg-rtsp-hls.service
-# systemctl enable ffmpeg-rtsp-hls.service
+# systemctl start ffmpeg-rtsp-hls.path
+# systemctl enable ffmpeg-rtsp-hls.path
 ```
 * Install and configure PostgreSQL, create db and user. [A quick start on Fedora](https://fedoramagazine.org/postgresql-quick-start-fedora-24/).
 * Copy `home_manager/conf.default.py` to `home_manager/conf.py` and edit `home_manager/conf.py`
@@ -35,12 +38,18 @@ If user at home rtsp feed and motion detection are disabled, night-mode settings
 ```
 $ ./db_manage.py init
 ```
-* Add user and tokens
+* Add user
 ```
 $ ./db_manage.py users -u username
+```
+* Create access token for Mikrotik
+```
 $ ./db_manage.py tokens -i mikrotik
+```
+* Create access token for camera (use identity and path from previous steps) and add video source
+```
 $ ./db_manage.py tokens -i camera-room
-$ ./db_manage.py tokens -i camera-kitchen
+$ ./db_manage.py video -n camera-room -p /tmp/hmuser/camera-room/video/video.m3u8
 ```
 * Add access restrictions
 ```
@@ -48,23 +57,17 @@ $ ./db_manage.py access -p /api/user/status -n 'update user status'
 $ ./db_manage.py access -p /api/camera/motion -n 'send motion picture'
 $ ./db_manage.py access -p /api/camera/setup -n 'get settings for camera'
 ```
-* Check ids
+* Check accesses ids
 ```
 $ ./db_manage.py list-access
 ```
 * Setup access (replace 1, 2 and 3 with correct ids from previous step) 
 ```
 $ ./db_manage.py set-access -a 1 -i mikrotik
-$ ./db_manage.py set-access -a 2 -i camera-room camera-kitchen
-$ ./db_manage.py set-access -a 3 -i camera-room camera-kitchen
+$ ./db_manage.py set-access -a 2 -i camera-room
+$ ./db_manage.py set-access -a 3 -i camera-room
 ```
-* Add video sources 
-```
-# use paths from units like ffmpeg-rtsp-hls.service
-$ ./db_manage.py video -p /path/video/camera1/video.m3u8 -n camera1 -c room
-$ ./db_manage.py video -p /path/video/camera2/video.m3u8 -n camera2 -c kitchen
-```
-* Edit `homemanager.service`, enter correct paths and place the file to `/etc/systemd/system`
+* Edit `homemanager.service`, enter correct paths and place service file to `/etc/systemd/system`
 * Start and enable systemd unit
 ```
 # systemctl start homemanager.service
@@ -73,7 +76,7 @@ $ ./db_manage.py video -p /path/video/camera2/video.m3u8 -n camera2 -c kitchen
 
 ## Mikrotik 
 * Decide what device will mark that you are at home, check mac address of the device
-* Edit `scripts/mikrotik_script`, enter correct host, token, mac-address, userid values
+* Edit `scripts/mikrotik_script`, enter correct host, token (from previous steps), mac-address, userid values
 * Add script's content to Mikrotik scripts
   * Winbox: System - Scripts - plus, enter `check_devices` to "Name" field, enter script's content to "Source" field, Ok
 * Set scheduler for script
@@ -81,7 +84,7 @@ $ ./db_manage.py video -p /path/video/camera2/video.m3u8 -n camera2 -c kitchen
   * Terminal: `/system scheduler add name=run_check_devices interval=10m on-event=check_devices`
 
 ## Camera
-* Edit `scripts/camera_module`, enter correct host and token values
+* Edit `scripts/camera_module`, enter correct host and token (from previous steps) values
 * Place `scripts/camera_module`, `scripts/camera_setup_script` and `scripts/camera_startup_script` to `/system/sdcard/config/userscripts` on your camera
 * Place `scripts/camera_motion_script` to `/system/sdcard/config/userscripts/motiondetection` on camera
 * Add `/system/sdcard/config/userscripts/camera_startup_script` to the end of `/system/sdcard/run.sh` on camera 
@@ -92,7 +95,7 @@ $ ./db_manage.py video -p /path/video/camera2/video.m3u8 -n camera2 -c kitchen
 
 # Additional information
 ## Motion detect
-Swap have to be enabled on camera for motion detections. See [this issue](https://github.com/EliasKotlyar/Xiaomi-Dafang-Hacks/issues/552) for details. Script `script/camera_startup_script` includes all required commands for that. If you have completed all steps from installation instructions, everything should work fine. Additional actions are not required. 
+Swap has to be enabled on camera for motion detections. See [this issue](https://github.com/EliasKotlyar/Xiaomi-Dafang-Hacks/issues/552) for details. Script `script/camera_startup_script` includes all required commands for that. If you have completed all steps from installation instructions, everything should work fine. Additional actions are not required. 
 
 ### Telegram notifications
 * Set `NOTIFICATIONS_SETTINGS['telegram']` = `True` in `home_manager/conf.py`

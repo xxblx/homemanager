@@ -106,7 +106,7 @@ def main():
     video_parser.add_argument('-c', '--comment', type=str, default=None)
 
     camera_parser = subparsers.add_parser('camera')
-    camera_parser.set_defaults('camera')
+    camera_parser.set_defaults(used='camera')
     camera_parser.add_argument('-i', '--identity', type=str, required=True,
                                help='camera\'s identity , like "camera-room"')
     camera_parser.add_argument('-p', '--path', type=str, required=True,

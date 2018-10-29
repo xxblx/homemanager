@@ -25,12 +25,7 @@ class WebApp(tornado.web.Application):
         self.loop = loop  # tornado wrapper for asyncio loop
         self.executor = ThreadPoolExecutor(4)
         self.db_pool = db_pool
-
-        self.videos = videos
-        self.videos_nums = set(v[0] for v in self.videos)
-
         self.notification_manager = NotificationManager(loop)
-
         self.path_restrictions = {
             v[1]: {'id': v[0], 'name': v[2]} for v in access_list
         }
@@ -45,12 +40,26 @@ class WebApp(tornado.web.Application):
             (r'/api/camera/setup', SetupHandler)
         ]
 
-        # Add video paths to handlers
+        self.videos = videos
+        self.videos_nums = set()
+        self.path_units_files = {}
+
         for video in self.videos:
-            path = os.path.dirname(video[1])
+            self.videos_nums.add(video[0])  # ids
+            video_dir = os.path.dirname(video[1])
+
+            # ffmpeg-rtsp-hls.service uses path-based activation
+            # creation of 'active' file starts the service
+            identity_dir = os.path.dirname(video_dir)
+            active_file = os.path.join(identity_dir, 'active')
+            # make dirs where files should be created and save files paths
+            os.makedirs(identity_dir, exist_ok=True)
+            self.path_units_files[video[2]] = active_file
+
+            # Add video paths to handlers
             handlers.append(
                 (r'/video/%d/(video[0-9]?\.(m3u8|ts))' % video[0],
-                 VideoServeHandler, {'dir_path': path})
+                 VideoServeHandler, {'dir_path': video_dir})
             )
 
         template_path = os.path.join(os.path.dirname(__file__), 'templates')

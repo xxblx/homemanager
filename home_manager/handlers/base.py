@@ -36,6 +36,10 @@ class BaseHandler(tornado.web.RequestHandler):
         return self.application.videos_nums
 
     @property
+    def path_units_files(self):
+        return self.application.path_units_files
+
+    @property
     def path_restrictions(self):
         return self.application.path_restrictions
 
