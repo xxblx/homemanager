@@ -54,7 +54,6 @@ class SetupHandler(TokenAuthHandler):
     """ Class for sharing setting to cameras """
 
     camera_settings = {'night_mode': 0, 'rtsp': 0, 'motion_detect': 0}
-    __activation_file = None
 
     @property
     def active_file(self):
@@ -66,7 +65,10 @@ class SetupHandler(TokenAuthHandler):
         return self.path_units_files[self.current_user['identity']]
 
     def check_sun(self):
-        """ Check is current time between sunrise and sunset """
+        """ Check is current time between sunrise and sunset
+
+        :return: [`bool` `True` if current time between sunrise and sunset
+        """
 
         sun = Location(LOCATION).sun()
         _now = datetime.now(tz=sun['sunrise'].tzinfo)
