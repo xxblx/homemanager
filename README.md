@@ -5,7 +5,7 @@ HomeManager is a simple solution for in-home ip cameras management. It allows to
 
 HomeManager is designed for personal usage at home's local network (i.e. without access from the internet) with some kind of home server (where the app is installed), Mikrotik router and Xiaomi Xiaofang 1S cameras. You have to flash [custom firmware](https://github.com/EliasKotlyar/Xiaomi-Dafang-Hacks) for using these camera models with HomeManager. 
 
-This solution is not suitable for using in the production and may have some security weaknesses (for example, token-based auth mechanism doesn't support tokens renew process).
+This solution is not suitable for using in the production and may have some security weaknesses (for example, token-based auth mechanism doesn't support tokens renew process and tokens don't have expires time).
 
 ## How it works
 If user at home rtsp feed and motion detection are disabled, night-mode settings are ignored. When user has left home night-mode settings are configuring according to the current time (depends on sunrise and sunset), rtsp feed and motion detection are turning on. 
@@ -44,9 +44,9 @@ $ ./db_manage.py tokens -i camera-kitchen
 ```
 * Add access restrictions
 ```
-$ ./db_manage.py -p /api/user/status -n 'update user status'
-$ ./db_manage.py -p /api/camera/motion -n 'send motion picture'
-$ ./db_manage.py -p /api/camera/setup -n 'get settings for camera'
+$ ./db_manage.py access -p /api/user/status -n 'update user status'
+$ ./db_manage.py access -p /api/camera/motion -n 'send motion picture'
+$ ./db_manage.py access -p /api/camera/setup -n 'get settings for camera'
 ```
 * Check ids
 ```
@@ -54,9 +54,9 @@ $ ./db_manage.py list-access
 ```
 * Setup access (replace 1, 2 and 3 with correct ids from previous step) 
 ```
-$ ./db_manage.py -a 1 -i mikrotik
-$ ./db_manage.py -a 2 -i camera-room camera-kitchen
-$ ./db_manage.py -a 3 -i camera-room camera-kitchen
+$ ./db_manage.py set-access -a 1 -i mikrotik
+$ ./db_manage.py set-access -a 2 -i camera-room camera-kitchen
+$ ./db_manage.py set-access -a 3 -i camera-room camera-kitchen
 ```
 * Add video sources 
 ```
@@ -74,7 +74,11 @@ $ ./db_manage.py video -p /path/video/camera2/video.m3u8 -n camera2 -c kitchen
 ## Mikrotik 
 * Decide what device will mark that you are at home, check mac address of the device
 * Edit `scripts/mikrotik_script`, enter correct host, token, mac-address, userid values
-* Add script's content to Mikrotik scripts, if you are using Winbox, System - Scripts - plus, enter 'check_devices' to script's name field, enter script's content, Ok
+* Add script's content to Mikrotik scripts
+  * Winbox: System - Scripts - plus, enter `check_devices` to "Name" field, enter script's content to "Source" field, Ok
+* Set scheduler for script
+  * Winbox: System - Scheduler - plus, enter `run_check_devices` to name field, set interval like `00:05:00` (how often router would check device and notify homemanager, '00:10:00' equals to 10 mins, '00:01:00' equals to 1 min), enter `/system script run check_devices` into "On Event" field, Ok
+  * Terminal: `/system scheduler add name=run_check_devices interval=10m on-event=check_devices`
 
 ## Camera
 * Edit `scripts/camera_module`, enter correct host and token values
@@ -83,6 +87,8 @@ $ ./db_manage.py video -p /path/video/camera2/video.m3u8 -n camera2 -c kitchen
 * Add `/system/sdcard/config/userscripts/camera_startup_script` to the end of `/system/sdcard/run.sh` on camera 
 * Run `/system/sdcard/config/userscripts/camera_startup_script` 
 * Add `/system/sdcard/config/userscripts/camera_setup_script` to crontab
+  * `# crontab -c /system/sdcard/config/cron/crontabs -e`
+  * Add `*/5     *       *       *       *       /system/sdcard/config/userscripts/camera_setup_script` in the end, in this way a command executes every 5 mins
 
 # Additional information
 ## Motion detect
