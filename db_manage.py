@@ -105,6 +105,14 @@ def main():
                               help='video\'s source name')
     video_parser.add_argument('-c', '--comment', type=str, default=None)
 
+    camera_parser = subparsers.add_parser('camera')
+    camera_parser.set_defaults('camera')
+    camera_parser.add_argument('-i', '--identity', type=str, required=True,
+                               help='camera\'s identity , like "camera-room"')
+    camera_parser.add_argument('-p', '--path', type=str, required=True,
+                               help='absolute path to m3u8')
+    camera_parser.add_argument('-c', '--comment', type=str, default=None)
+
     args = parser.parse_args()
     if 'used' not in args:
         return
@@ -134,6 +142,11 @@ def main():
 
     elif args.used == 'video':
         insert_video(args.path, args.source_name, args.comment)
+
+    elif args.used == 'camera':
+        insert_video(args.path, args.identity, args.comment)
+        token = insert_tokens(args.identity)
+        print(token)
 
 
 if __name__ == '__main__':
