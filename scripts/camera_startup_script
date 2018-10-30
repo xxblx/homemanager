@@ -3,10 +3,9 @@
 source /system/sdcard/config/userscripts/camera_module
 
 # Swap
-if [ ! -f /system/sdcard/swapfile ]
-then
-	dd if=/dev/zero of=/system/sdcard/swapfile bs=1M count=64
-	mkswap /system/sdcard/swapfile
+if [ ! -f /system/sdcard/swapfile ]; then
+    dd if=/dev/zero of=/system/sdcard/swapfile bs=1M count=64
+    mkswap /system/sdcard/swapfile
 fi 
 
 swapon /system/sdcard/swapfile

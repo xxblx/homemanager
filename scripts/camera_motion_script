@@ -2,17 +2,20 @@
 
 source /system/sdcard/config/userscripts/camera_module
 
-if [ -f /tmp/camera_motion_script.lock ]; then
+lock_file="/tmp/camera_motion_script.lock"
+jpg_file="/tmp/camera_motion_script.jpg"
+
+if [ -f ${lock_file} ]; then
     echo "camera_motion_script is running"
     exit 1
 fi
 
-touch /tmp/camera_motion_script.lock
+touch ${lock_file}
 
-/system/sdcard/bin/getimage > /tmp/camera_motion_script.jpg
+/system/sdcard/bin/getimage > ${jpg_file}
 
-curl -i -X POST -H "Content-Type: multipart/form-data" -F "token=${TOKEN}" -F "pic=@/tmp/camera_motion_script.jpg" $URL_MOTION
+/system/sdcard/bin/curl -i -X POST -H "Content-Type: multipart/form-data" -F "token=${TOKEN}" -F "pic=@${jpg_file}" $URL_MOTION
 
-rm -rf /tmp/camera_motion_script.jpg
-rm -rf /tmp/camera_motion_script.lock
+rm -rf ${jpg_file}
+rm -rf ${lock_file}
 
