@@ -5,7 +5,7 @@ source /system/sdcard/config/userscripts/camera_module
 camera_json=$(/system/sdcard/bin/curl "${URL_SETUP}")
 test_json=$(echo "${camera_json}" | /system/sdcard/bin/jq .)
 
-if [ -z ${camera_json} ] || [ -z ${test_json} ]
+if [ -z "${camera_json}" ] || [ -z "${test_json}" ]
 then
     echo "Invalid settings json"
     exit 1
