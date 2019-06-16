@@ -15,6 +15,10 @@ class NotificationManager:
 
     async def send_notification(self, _datetime, identity, photo):
         date_str = _datetime.strftime(NOTIFICATIONS_SETTINGS['date_format'])
-
         for backend in self.backends:
             await backend.send_notification(date_str, identity, photo)
+
+    async def send_log(self, _datetime, identity, status):
+        date_str = _datetime.strftime(NOTIFICATIONS_SETTINGS['date_format'])
+        for backend in self.backends:
+            await backend.send_log(date_str, identity, status)

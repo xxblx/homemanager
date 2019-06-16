@@ -29,6 +29,7 @@ class WebApp(tornado.web.Application):
         self.path_restrictions = {
             v[1]: {'id': v[0], 'name': v[2]} for v in access_list
         }
+        self.cameras_setup = {}
 
         handlers = [
             (r'/', MainPageHandler),

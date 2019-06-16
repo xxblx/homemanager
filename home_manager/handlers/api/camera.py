@@ -56,12 +56,15 @@ class SetupHandler(TokenAuthHandler):
     camera_settings = {'night_mode': 0, 'rtsp': 0, 'motion_detect': 0}
 
     @property
+    def cameras_setup(self):
+        return self.application.cameras_setup
+
+    @property
     def active_file(self):
         """ Get path of 'active' file in identity's directory
 
         :return: [:class:`str`] path to 'active' file
         """
-
         return self.path_units_files[self.current_user['identity']]
 
     def check_sun(self):
@@ -69,14 +72,12 @@ class SetupHandler(TokenAuthHandler):
 
         :return: [`bool` `True` if current time between sunrise and sunset
         """
-
         sun = Location(LOCATION).sun()
         _now = datetime.now(tz=sun['sunrise'].tzinfo)
 
         return sun['sunrise'] <= _now <= sun['sunset']
 
     async def get(self):
-
         # Check does user at home
         async with self.db_pool.acquire() as conn:
             async with conn.cursor() as cur:
@@ -101,5 +102,31 @@ class SetupHandler(TokenAuthHandler):
         else:
             if os.path.exists(self.active_file):
                 os.remove(self.active_file)
+
+        if self.current_user['identity'] not in self.cameras_setup:
+            self.cameras_setup[self.current_user['identity']] = camera_settings
+        else:
+            # If motion detection has been switched send a log message
+            motion_detect = camera_settings['motion_detect']
+            motion_detect_prev = self.cameras_setup[
+                self.current_user['identity']
+            ]['motion_detect']
+
+            if motion_detect != motion_detect_prev:
+                if motion_detect == 1:
+                    status = 'on'
+                else:
+                    status = 'off'
+
+                await self.notification_manager.send_log(
+                    datetime.now(),
+                    self.current_user['identity'],
+                    status
+                )
+
+            # Save new settings
+            self.cameras_setup[self.current_user['identity']].update(
+                camera_settings
+            )
 
         self.write(camera_settings)
