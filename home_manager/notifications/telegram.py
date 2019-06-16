@@ -32,11 +32,16 @@ class TelegramBackend(BaseBackend):
 
     @BaseBackend.run_in_loop_executor
     def send_log(self, date_str, identity, status='on'):
+        text = '{} - {} - motion detection: {} #log'.format(
+            date_str,
+            identity,
+            status
+        )
         requests.post(
             url=self.message_url,
             data={
                 'chat_id': self.chat_id,
-                'text': '{} - {} is {} #log'.format(date_str, identity, status)
+                'text': text
             },
             proxies=TELEGRAM_SETTINGS['proxy']
         )
