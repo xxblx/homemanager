@@ -127,7 +127,6 @@ Check [this issue](https://github.com/EliasKotlyar/Xiaomi-Dafang-Hacks/issues/40
 * [ffmpeg](https://ffmpeg.org)
 * [bcrypt](https://github.com/pyca/bcrypt)
 * [Astral](https://github.com/sffjunkie/astral)
-* [requests](https://github.com/requests/requests) 
 
 ## License
 HomeManager is free and opensource software, it is licensed under GNU GPL 3 (or newer) license. Check `LICENSE` for details.
