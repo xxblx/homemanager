@@ -22,15 +22,17 @@ If user at home rtsp feed and motion detection are disabled, night-mode settings
 ```
 # useradd hmuser -m -s /sbin/nologin
 ```
-* Define identity (id) of your camera, example: `camera-room` 
-* Edit `ffmpeg-rtsp-hls.service` and `ffmpeg-rtsp-hls.path`, enter correct paths and address of rtsp feed
-  * _**Note**: use the same replacement for "/path/camera-identity" in both files_
-* If you have few cameras, create copies of `ffmpeg-rtsp-hls.service` and `ffmpeg-rtsp-hls.path`, edit them
-* Place `ffmpeg-rtsp-hls.service` and `ffmpeg-rtsp-hls.path` to `/etc/systemd/system`
+* Define an identity of your camera: `camera-room` 
+* Create the environment file: `/home/hmuser/rtsp_sources`
+* Add the identity and rtsp into the environment file 
+```
+RTSP_camera-room=rtsp://ip:port
+```
+* Place `ffmpeg-rtsp-hls@.service` and `ffmpeg-rtsp-hls@.path` to `/etc/systemd/system`
 * Start and enable path-unit
 ```
-# systemctl start ffmpeg-rtsp-hls.path
-# systemctl enable ffmpeg-rtsp-hls.path
+# systemctl start ffmpeg-rtsp-hls@camera-room.path
+# systemctl enable ffmpeg-rtsp-hls@camera-room.path
 ```
 * Install and configure PostgreSQL, create db and user. [A quick start on Fedora](https://fedoramagazine.org/postgresql-quick-start-fedora-24/).
 * Copy `home_manager/conf.default.py` to `home_manager/conf.py` and edit `home_manager/conf.py`
@@ -130,4 +132,3 @@ Check [this issue](https://github.com/EliasKotlyar/Xiaomi-Dafang-Hacks/issues/40
 
 ## License
 HomeManager is free and opensource software, it is licensed under GNU GPL 3 (or newer) license. Check `LICENSE` for details.
-

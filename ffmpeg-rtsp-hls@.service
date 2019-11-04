@@ -1,0 +1,17 @@
+[Unit]
+Description=Convert video from RTSP input to HLS
+After=network.target
+
+[Service]
+User=hmuser
+EnvironmentFile=%h/rtsp_sources
+ExecStartPre=/usr/bin/mkdir -p /tmp/hmuser/%i/video
+ExecStartPre=/usr/bin/chmod go-rwx /tmp/hmuser/%i
+ExecStart=/usr/bin/ffmpeg -i ${RTSP_%i} -fflags flush_packets -max_delay 1 -an -flags -global_header -hls_time 4 -hls_list_size 3 -hls_wrap 3 -vcodec copy -y /tmp/hmuser/%i/video/video.m3u8
+ExecStopPost=/usr/bin/rm -rf /tmp/hmuser/%i/video
+Restart=on-failure
+RestartSec=60
+
+[Install]
+WantedBy=multi-user.target
+
