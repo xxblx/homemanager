@@ -4,7 +4,7 @@ CREATE = {
     'users': """
 CREATE TABLE IF NOT EXISTS users_t (
     username_id SERIAL PRIMARY KEY,
-    username TEXT,
+    username TEXT UNIQUE,
     passwd_hash BYTEA
 )
     """,
