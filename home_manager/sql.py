@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 CREATE = {
     'users': """
 CREATE TABLE IF NOT EXISTS users_t (

@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 from functools import partial
 from uuid import uuid4
 from urllib.parse import urlencode

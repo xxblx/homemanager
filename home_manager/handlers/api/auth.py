@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 from .base import ApiHandler
 from ...sql import SELECT
 

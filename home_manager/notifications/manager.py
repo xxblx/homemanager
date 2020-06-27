@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 from .telegram import TelegramBackend
 from ..conf import NOTIFICATIONS_SETTINGS
 
