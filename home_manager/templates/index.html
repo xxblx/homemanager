@@ -1,14 +1,16 @@
 {% extends "base.html" %}
 
 {% block dropdown %}
-  <li class="nav-item dropdown">
-    <a class="nav-link dropdown-toggle" href="#" id="dropdown01" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Cameras</a>
-    <div class="dropdown-menu" aria-labelledby="dropdown01">
+<li class="nav-item dropdown">
+<a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+Cameras
+</a>
+<ul class="dropdown-menu" aria-labelledby="navbarDropdown">
     {% for camera in cameras %}
-        <a class="dropdown-item" href="/camera/{{camera[0]}}">{{camera[0]}}</a>
+    <li><a class="dropdown-item" href="/camera/{{camera[0]}}">{{camera[0]}}</a></li>
     {% end %}
-    </div>
-  </li>
+</ul>
+</li>
 {% end %}
 
 {% block body %}
