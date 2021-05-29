@@ -34,6 +34,9 @@ INSERT INTO homemanager.roles_paths(
 INSERT INTO homemanager.cameras(device_id, path_video, path_activation) 
 VALUES(%s, %s, %s)
 """
+    router = """
+INSERT INTO homemanager.routers(device_id) VALUES(%s)
+"""
     motion = """
 INSERT INTO homemanager.motions(motion_data, camera_id, motion_time) 
 VALUES(%s, %s, %s)

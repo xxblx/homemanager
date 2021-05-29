@@ -57,19 +57,6 @@ def add_token(permanent):
     # TODO: use api to get tokens pair
 
 
-def add_role(role_name, path, get, post, put, delete):
-    # TODO: get handlers list from app.py
-    handlers = ('/api/user/status', '/api/camera/motion', '/api/camera/setup')
-    if path not in handlers:
-        raise
-    with psycopg2.connect(DSN) as conn:
-        cur = conn.cursor()
-        cur.execute(
-            InsertQueries.role,
-            (role_name, path, get, post, put, delete)
-        )
-
-
 def add_camera(camera_name, path_video, path_activation):
     with psycopg2.connect(DSN) as conn:
         cur = conn.cursor()
@@ -81,10 +68,13 @@ def add_camera(camera_name, path_video, path_activation):
         cur.execute(InsertQueries.role_device, ('camera', device_id))
 
 
-def assign_role(role_name, token_select):
+def add_router(router_name):
     with psycopg2.connect(DSN) as conn:
         cur = conn.cursor()
-        cur.execute(InsertQueries.role_token, (role_name, token_select))
+        cur.execute(InsertQueries.device, (router_name, 'router'))
+        device_id = cur.fetchall()[0][0]
+        cur.execute(InsertQueries.router, (device_id,))
+        cur.execute(InsertQueries.role_device, ('router', device_id))
 
 
 def main():
@@ -101,17 +91,13 @@ def main():
             'func': add_token,
             'kw': ['permanent']
         },
-        'role-add': {
-            'func': add_role,
-            'kw': ['role_name', 'path', 'get', 'post', 'put', 'delete']
-        },
         'camera-add': {
             'func': add_camera,
             'kw': ['camera_name', 'path_video', 'path_activation']
         },
-        'role-assign': {
-            'func': assign_role,
-            'kw': ['token_select', 'role_name']
+        'router-add': {
+            'func': add_router,
+            'kw': ['router_name']
         },
     }
 
@@ -132,20 +118,6 @@ def main():
     token_add.add_argument('-p', '--permanent', action='store_true',
                            default=True)
 
-    role_add = subparsers.add_parser('role-add')
-    role_add.set_defaults(used='role-add')
-    role_add.add_argument('-n', '--role-name', type=str, required=True)
-    role_add.add_argument('-p', '--path', type=str, required=True)
-    role_add.add_argument('--get', action='store_true', default=False)
-    role_add.add_argument('--post', action='store_true', default=False)
-    role_add.add_argument('--put', action='store_true', default=False)
-    role_add.add_argument('--delete', action='store_true', default=False)
-
-    role_assign = subparsers.add_parser('role-assign')
-    role_assign.set_defaults(used='role-assign')
-    role_assign.add_argument('-n', '--role-name', type=int)
-    role_assign.add_argument('-t', '--token-select', type=int)
-
     camera_add = subparsers.add_parser('camera-add')
     camera_add.set_defaults(used='camera-add')
     camera_add.add_argument('-n', '--camera-name', type=str, required=True)
@@ -153,6 +125,10 @@ def main():
                             help='video file path')
     camera_add.add_argument('-a', '--path-activation', type=str, required=True,
                             help='activation file path for systemd service')
+
+    router_add = subparsers.add_parser('router-add')
+    router_add.set_defaults(used='router-add')
+    router_add.add_argument('-n', '--router-name', type=str, required=True)
 
     args = parser.parse_args()
     if 'used' not in args:
