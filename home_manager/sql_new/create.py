@@ -55,19 +55,32 @@ CREATE TABLE homemanager.tokens(
     token_select INT,
     token_verify BYTEA,
     token_renew TEXT,
-    expires_in TIMESTAMP DEFAULT,
+    expires_in TIMESTAMP DEFAULT NULL,
     UNIQUE(token_select),
     PRIMARY KEY(token_id)
 )
 """
 
-# 0 - GET, 1 - POST, 2 - PUT, 3 - DELETE
+    tokens_session = """
+CREATE TABLE homemanager.tokens_session(
+    token_id GENERATED ALWAYS AS IDENTITY,
+    token TEXT,
+    expires_in TIMESTAMP DEFAULT CURRENT_TIMESTAMP + INTERVAL '1 hour',
+    UNIQUE(token),
+    PRIMARY KEY(token_id)
+)
+"""
+
     roles = """
 CREATE TABLE homemanager.roles(
     role_id GENERATED ALWAYS AS IDENTITY,
     role_name TEXT,
     path TEXT,
-    method_code INT
+    method_get BOOLEAN DEFAULT False,
+    method_post BOOLEAN DEFAULT False,
+    method_put BOOLEAN DEFAULT False,
+    method_delete BOOLEAN DEFAULT False,
+    UNIQUE(role_name)
 )
 """
 
@@ -87,15 +100,17 @@ CREATE TABLE homemanager.roles_tokens(
 """
 
     cameras = """
-CREATE TABLE IF NOT EXISTS homemanager.cameras (
+CREATE TABLE IF NOT EXISTS homemanager.cameras(
     camera_id GENERATED ALWAYS AS IDENTITY,
     camera_name TEXT,
-    video_path TEXT
+    path_video TEXT,
+    path_active TEXT DEFAULT NULL,
+    UNIQUE(path_video)
 )
 """
 
     motions = """
-CREATE TABLE IF NOT EXISTS homemanager.motions (
+CREATE TABLE IF NOT EXISTS homemanager.motions(
     motion_id GENERATED ALWAYS AS IDENTITY,
     motion_data BYTEA,
     camera_id INT,

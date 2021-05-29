@@ -1,20 +1,18 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 
 import getpass
 import argparse
 from uuid import uuid4
 
-import bcrypt
+import nacl.pwhash
 import psycopg2
 
 from home_manager.conf import DSN
-from home_manager.sql import INSERT
 from home_manager.sql_new.create import CreateTableQueries, CreateSchemaQueries
-from home_manager.sql_new.select import SelectQueries
+from home_manager.sql_new.insert import InsertQueries
 
 
-def init_db():
+def db_init():
     with psycopg2.connect(DSN) as conn:
         cur = conn.cursor()
         for query in CreateSchemaQueries.get_create_queries():
@@ -23,134 +21,129 @@ def init_db():
             cur.execute(query)
 
 
-def insert_users(username, passwd_hash):
+def add_user(username):
+    password = getpass.getpass()
+    password_hash = nacl.pwhash.str(password.encode())
     with psycopg2.connect(DSN) as conn:
         cur = conn.cursor()
-        cur.execute(INSERT['users'], (username, passwd_hash))
-        cur.execute(INSERT['status'], (username,))
+        cur.execute(InsertQueries.user, (username, password_hash))
+        user_id = cur.fetchall()[0][0]
+        cur.execute(InsertQueries.user_status, (user_id,))
 
 
-def insert_tokens(identity):
+def add_token(permanent):
     token = uuid4().hex
     with psycopg2.connect(DSN) as conn:
         cur = conn.cursor()
-        cur.execute(INSERT['tokens'], (token, identity))
+        cur.execute(InsertQueries.token_session, (token,))
+    # TODO: use api to get tokens pair
 
-    return token
 
-
-def insert_access(path, access_name):
+def add_role(role_name, path, get, post, put, delete):
+    # TODO: get handlers list from app.py
+    handlers = ('/api/user/status', '/api/camera/motion', '/api/camera/setup')
+    if path not in handlers:
+        raise
     with psycopg2.connect(DSN) as conn:
         cur = conn.cursor()
-        cur.execute(INSERT['access'], (path, access_name))
+        cur.execute(
+            InsertQueries.role,
+            (role_name, path, get, post, put, delete)
+        )
 
 
-def list_access():
+def add_camera(camera_name, path_video, path_activation):
     with psycopg2.connect(DSN) as conn:
         cur = conn.cursor()
-        cur.execute(SelectQueries.access)
-        res = cur.fetchall()
+        cur.execute(
+            InsertQueries.camera,
+            (camera_name, path_video, path_activation)
+        )
 
-    return res
 
-
-def insert_access_token(access_id, identities):
+def assign_role(role_name, token_select):
     with psycopg2.connect(DSN) as conn:
         cur = conn.cursor()
-        for idt in identities:
-            cur.execute(INSERT['access_tokens'], (access_id, idt))
-
-
-def insert_video(path, source_name, comment):
-    with psycopg2.connect(DSN) as conn:
-        cur = conn.cursor()
-        cur.execute(INSERT['video'], (path, source_name, comment))
+        cur.execute(InsertQueries.role_token, (role_name, token_select))
 
 
 def main():
+    commands = {
+        'init-db': {
+            'func': db_init,
+            'kw': []
+        },
+        'user-add': {
+            'func': add_user,
+            'kw': ['username']
+        },
+        'token-add': {
+            'func': add_token,
+            'kw': ['permanent']
+        },
+        'role-add': {
+            'func': add_role,
+            'kw': ['role_name', 'path', 'get', 'post', 'put', 'delete']
+        },
+        'camera-add': {
+            'func': add_camera,
+            'kw': ['camera_name', 'path_video', 'path_activation']
+        },
+        'role-assign': {
+            'func': assign_role,
+            'kw': ['token_select', 'role_name']
+        },
+    }
+
     parser = argparse.ArgumentParser(prog='HomeManager')
 
     subparsers = parser.add_subparsers()
 
-    init_parser = subparsers.add_parser('init-db')
-    init_parser.set_defaults(used='init-db')
+    init_db = subparsers.add_parser('init-db')
+    init_db.set_defaults(used='init-db')
 
-    users_parser = subparsers.add_parser('users')
-    users_parser.set_defaults(used='users')
-    users_parser.add_argument('-u', '--username', type=str, required=True)
+    user_add = subparsers.add_parser('user-add')
+    user_add.set_defaults(used='user-add')
+    user_add.add_argument('-u', '--username', type=str, required=True)
 
-    tokens_parser = subparsers.add_parser('tokens')
-    tokens_parser.set_defaults(used='tokens')
-    tokens_parser.add_argument('-i', '--identity', type=str, required=True)
+    token_add = subparsers.add_parser('token-add')
+    token_add.set_defaults(used='token-add')
+    # TODO: default=False
+    token_add.add_argument('-p', '--permanent', action='store_true',
+                           default=True)
 
-    access_parser = subparsers.add_parser('access')
-    access_parser.set_defaults(used='access')
-    access_parser.add_argument('-p', '--path', type=str, required=True,
-                               help='path in the url, like "/api/person"')
-    access_parser.add_argument('-n', '--name', type=str, default=None)
+    role_add = subparsers.add_parser('role-add')
+    role_add.set_defaults(used='role-add')
+    role_add.add_argument('-n', '--role-name', type=str, required=True)
+    role_add.add_argument('-p', '--path', type=str, required=True)
+    role_add.add_argument('--get', action='store_true', default=False)
+    role_add.add_argument('--post', action='store_true', default=False)
+    role_add.add_argument('--put', action='store_true', default=False)
+    role_add.add_argument('--delete', action='store_true', default=False)
 
-    list_access_parser = subparsers.add_parser('list-access')
-    list_access_parser.set_defaults(used='list-access')
+    role_assign = subparsers.add_parser('role-assign')
+    role_assign.set_defaults(used='role-assign')
+    role_assign.add_argument('-n', '--role-name', type=int)
+    role_assign.add_argument('-t', '--token-select', type=int)
 
-    set_access_parser = subparsers.add_parser('set-access')
-    set_access_parser.set_defaults(used='set-access')
-    set_access_parser.add_argument('-a', '--accessid', type=int,
-                                   help='id of the access')
-#    set_access_parser.add_argument('-u', '--username', type=str, nargs='+',
-#                                   help='list usernames')
-    set_access_parser.add_argument('-i', '--identities', type=str, nargs='+',
-                                   help='list tokens identities')
-
-    video_parser = subparsers.add_parser('video')
-    video_parser.set_defaults(used='video')
-    video_parser.add_argument('-p', '--path', type=str, required=True,
-                              help='absolute path to m3u8')
-    video_parser.add_argument('-n', '--source_name', type=str, required=True,
-                              help='video\'s source name')
-    video_parser.add_argument('-c', '--comment', type=str, default=None)
-
-    camera_parser = subparsers.add_parser('camera')
-    camera_parser.set_defaults(used='camera')
-    camera_parser.add_argument('-i', '--identity', type=str, required=True,
-                               help='camera\'s identity , like "camera-room"')
-    camera_parser.add_argument('-p', '--path', type=str, required=True,
-                               help='absolute path to m3u8')
-    camera_parser.add_argument('-c', '--comment', type=str, default=None)
+    camera_add = subparsers.add_parser('camera-add')
+    camera_add.set_defaults(used='camera-add')
+    camera_add.add_argument('-n', '--camera-name', type=str, required=True)
+    camera_add.add_argument('-p', '--path-video', type=str, required=True,
+                            help='video file path')
+    camera_add.add_argument('-a', '--path-activation', type=str, required=True,
+                            help='activation file path for systemd service')
 
     args = parser.parse_args()
     if 'used' not in args:
         return
-
-    if args.used == 'init-db':
-        init_db()
-
-    elif args.used == 'users':
-        passwd = getpass.getpass()
-        passwd_hash = bcrypt.hashpw(passwd.encode(), bcrypt.gensalt())
-        insert_users(args.username, passwd_hash)
-
-    elif args.used == 'tokens':
-        token = insert_tokens(args.identity)
-        print(token)
-
-    elif args.used == 'access':
-        insert_access(args.path, args.name)
-
-    elif args.used == 'list-access':
-        res = list_access()
-        for row in [('id', 'Path', 'Name')]+res:
-            print('%s\t%s\t%s' % row)
-
-    elif args.used == 'set-access':
-        insert_access_token(args.accessid, args.identities)
-
-    elif args.used == 'video':
-        insert_video(args.path, args.source_name, args.comment)
-
-    elif args.used == 'camera':
-        insert_video(args.path, args.identity, args.comment)
-        token = insert_tokens(args.identity)
-        print(token)
+    else:
+        _args = vars(args)
+        func = commands[args.used]['func']
+        kw = {k: _args[k] for k in commands[args.used]['kw']}
+        result = func(**kw)
+        if result is not None:
+            print(result)
 
 
 if __name__ == '__main__':
