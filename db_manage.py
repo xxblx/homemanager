@@ -55,9 +55,10 @@ def add_role(role_name, path, get, post, put, delete):
 def add_camera(camera_name, path_video, path_activation):
     with psycopg2.connect(DSN) as conn:
         cur = conn.cursor()
+        cur.execute(InsertQueries.device, (camera_name, 'camera'))
+        device_id = cur.fetchall()[0][0]
         cur.execute(
-            InsertQueries.camera,
-            (camera_name, path_video, path_activation)
+            InsertQueries.camera, (device_id, path_video, path_activation)
         )
 
 

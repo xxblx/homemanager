@@ -4,6 +4,10 @@ class InsertQueries:
 INSERT INTO homemanager.users(username, passwd_hash) VALUES(%s, %s)
 RETURNING user_id
 """
+    device = """
+INSERT INTO homemanager.devices(device_name, device_type) VALUES(%s, %s)
+RETURNING device_id
+"""
     token_session = """
 INSERT INTO homemanager.tokens_session(token)
 """
@@ -18,7 +22,7 @@ INSERT INTO homemanager.roles(
 ) VALUES(%s, %s, %s, %s, %s, %s)
 """
     camera = """
-INSERT INTO homemanager.cameras(camera_name, path_video, path_active) 
+INSERT INTO homemanager.cameras(device_id, path_video, path_active) 
 VALUES(%s, %s, %s)
 """
     motion = """

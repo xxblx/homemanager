@@ -23,7 +23,8 @@ class CreateTableQueries(CreateQueries):
     @staticmethod
     def sorted_key(x):
         # yield users, tokens, roles and cameras at first
-        _priority_dict = {'users': 1, 'tokens': 2, 'roles': 3, 'cameras': 4}
+        _priority_dict = {'users': 1, 'devices': 2, 'tokens': 3, 'roles': 4,
+                          'cameras': 5}
         if x[0] in _priority_dict:
             return _priority_dict[x[0]]
         return 5
@@ -37,7 +38,6 @@ CREATE TABLE homemanager.users(
     PRIMARY KEY(user_id)
 )
 """
-
     user_statuses = """
 CREATE TABLE homemanager.user_statuses(
     user_id INT,
@@ -48,7 +48,15 @@ CREATE TABLE homemanager.user_statuses(
             ON DELETE CASCADE
 )
 """
-
+    devices = """
+CREATE TABLE homemanager.devices(
+    device_id INT GENERATED ALWAYS AS IDENTITY,
+    device_name TEXT,
+    device_type TEXT,
+    UNIQUE(device_name),
+    PRIMARY KEY(device_id)
+)
+"""
     tokens = """
 CREATE TABLE homemanager.tokens(
     token_id INT GENERATED ALWAYS AS IDENTITY,
@@ -60,7 +68,6 @@ CREATE TABLE homemanager.tokens(
     PRIMARY KEY(token_id)
 )
 """
-
     tokens_session = """
 CREATE TABLE homemanager.tokens_session(
     token_id INT GENERATED ALWAYS AS IDENTITY,
@@ -70,7 +77,6 @@ CREATE TABLE homemanager.tokens_session(
     PRIMARY KEY(token_id)
 )
 """
-
     roles = """
 CREATE TABLE homemanager.roles(
     role_id INT GENERATED ALWAYS AS IDENTITY,
@@ -84,7 +90,6 @@ CREATE TABLE homemanager.roles(
     PRIMARY KEY(role_id)
 )
 """
-
     roles_tokens = """
 CREATE TABLE homemanager.roles_tokens(
     role_id INT,
@@ -99,27 +104,36 @@ CREATE TABLE homemanager.roles_tokens(
             ON DELETE CASCADE
 )
 """
-
     cameras = """
 CREATE TABLE homemanager.cameras(
-    camera_id INT GENERATED ALWAYS AS IDENTITY,
-    camera_name TEXT,
+    device_id INT,
     path_video TEXT,
-    path_active TEXT DEFAULT NULL,
+    path_activation TEXT DEFAULT NULL,
     UNIQUE(path_video),
-    PRIMARY KEY(camera_id)
+    CONSTRAINT fk_cameras_device_id
+        FOREIGN KEY(device_id)
+            REFERENCES homemanager.devices(device_id)
+            ON DELETE CASCADE
 )
 """
-
+    routers = """
+CREATE TABLE homemanager.routers(
+    device_id INT,
+    CONSTRAINT fk_cameras_device_id
+        FOREIGN KEY(device_id)
+            REFERENCES homemanager.devices(device_id)
+            ON DELETE CASCADE
+)
+"""
     motions = """
 CREATE TABLE homemanager.motions(
     motion_id INT GENERATED ALWAYS AS IDENTITY,
-    motion_data BYTEA,
-    camera_id INT,
+    motion_data BYTEA DEFAULT NULL,
+    device_id INT,
     motion_time TIMESTAMP,
-    CONSTRAINT fk_motions_camera_id
-        FOREIGN KEY(camera_id)
-            REFERENCES homemanager.cameras(camera_id)
+    CONSTRAINT fk_motions_device_id
+        FOREIGN KEY(device_id)
+            REFERENCES homemanager.devices(device_id)
             ON DELETE SET NULL
 )
 """

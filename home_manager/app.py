@@ -19,51 +19,43 @@ from .conf import DSN, DEBUG
 
 
 class WebApp(tornado.web.Application):
-    def __init__(self, loop, db_pool, videos, access_list):
+    def __init__(self, loop, db_pool, cameras):
         self.loop = loop  # tornado wrapper for asyncio loop
         self.executor = ThreadPoolExecutor(4)
         self.db_pool = db_pool
         self.notification_manager = NotificationManager(loop)
-        self.path_restrictions = {
-            v[1]: {'id': v[0], 'name': v[2]} for v in access_list
-        }
         self.cameras_setup = {}
 
         handlers = [
             (r'/', MainPageHandler),
             (r'/login', LoginHandler),
             (r'/logout', LogoutHandler),
-            (r'/source/([0-9]*/?)', SourcePageHandler),
+            # (r'/source/([0-9]*/?)', SourcePageHandler),
             (r'/api/user/status', StatusHandler),
             (r'/api/camera/motion', MotionHandler),
             (r'/api/camera/setup', SetupHandler)
         ]
 
-        self.videos = videos
-        self.videos_nums = set()
-        self.path_units_files = {}
-
-        for video in self.videos:
-            self.videos_nums.add(video[0])  # ids
-            video_dir = os.path.dirname(video[1])
-
-            # ffmpeg-rtsp-hls.service uses path-based activation
-            # creation of 'active' file starts the service
-            identity_dir = os.path.dirname(video_dir)
-            active_file = os.path.join(identity_dir, 'active')
-            # make dirs where files should be created and save files paths
-            os.makedirs(identity_dir, exist_ok=True)
-            self.path_units_files[video[2]] = active_file
-
-            # Add video paths to handlers
-            handlers.append(
-                (r'/video/%d/(video[0-9]?\.(m3u8|ts))' % video[0],
-                 VideoServeHandler, {'dir_path': video_dir})
+        self.cameras = {}
+        for camera in cameras:
+            self.cameras[camera[0]] = dict(
+                zip(['device_name', 'path_video', 'path_activation'], camera)
             )
+            # Web page
+            handlers.append((
+                r'/camera/{}'.format(camera[0]), SourcePageHandler
+            ))
+            # Video file
+            handlers.append((
+                r'/video/{}/{}})'.format(
+                    camera[0],  # camera name
+                    os.path.basename(camera[1])  # video file name
+                ),
+                VideoServeHandler, {'path_video': camera[1]}
+            ))
 
         template_path = os.path.join(os.path.dirname(__file__), 'templates')
         static_path = os.path.join(os.path.dirname(__file__), 'static')
-
         settings = {
             'template_path': template_path,
             'static_path': static_path,
@@ -72,24 +64,17 @@ class WebApp(tornado.web.Application):
             'xsrf_cookies': True,
             'cookie_secret': os.urandom(32)
         }
-
         super(WebApp, self).__init__(handlers, **settings)
 
 
 async def init_db():
     """ Connect to database and get initial data
-
     :return: connection_pool, list of video sources, accesses list
     """
-
     db_pool = await aiopg.create_pool(dsn=DSN)
-
     async with await db_pool.acquire() as conn:
         async with conn.cursor() as cur:
             await cur.execute(SelectQueries.cameras)
-            videos = await cur.fetchall()
+            cameras = await cur.fetchall()
 
-            await cur.execute(SelectQueries.access)
-            access_list = await cur.fetchall()
-
-    return db_pool, videos, access_list
+    return db_pool, cameras
