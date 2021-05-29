@@ -9,15 +9,18 @@ import bcrypt
 import psycopg2
 
 from home_manager.conf import DSN
-from home_manager.sql import CREATE, INSERT
+from home_manager.sql import INSERT
+from home_manager.sql_new.create import CreateTableQueries, CreateSchemaQueries
 from home_manager.sql_new.select import SelectQueries
 
 
-def create_tables():
+def init_db():
     with psycopg2.connect(DSN) as conn:
         cur = conn.cursor()
-        for key in CREATE:
-            cur.execute(CREATE[key])
+        for query in CreateSchemaQueries.get_create_queries():
+            cur.execute(query)
+        for query in CreateTableQueries.get_create_queries():
+            cur.execute(query)
 
 
 def insert_users(username, passwd_hash):
@@ -69,8 +72,8 @@ def main():
 
     subparsers = parser.add_subparsers()
 
-    init_parser = subparsers.add_parser('init', help='Create tables')
-    init_parser.set_defaults(used='init')
+    init_parser = subparsers.add_parser('init-db')
+    init_parser.set_defaults(used='init-db')
 
     users_parser = subparsers.add_parser('users')
     users_parser.set_defaults(used='users')
@@ -118,8 +121,8 @@ def main():
     if 'used' not in args:
         return
 
-    if args.used == 'init':
-        create_tables()
+    if args.used == 'init-db':
+        init_db()
 
     elif args.used == 'users':
         passwd = getpass.getpass()
