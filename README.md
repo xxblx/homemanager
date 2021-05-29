@@ -122,13 +122,15 @@ mount -o remount,rw /system/sdcard
 ```
 Check [this issue](https://github.com/EliasKotlyar/Xiaomi-Dafang-Hacks/issues/409). 
 
-## Dependencies and system requirements
+## Dependencies, built-in libraries and system requirements
 * [Custom firmware](https://github.com/EliasKotlyar/Xiaomi-Dafang-Hacks) for cameras
 * [Python](http://www.python.org) and [Tornado](https://github.com/tornadoweb/tornado)
 * [PostgreSQL](http://www.postgresql.org) and [psycopg2](http://initd.org/psycopg), [aiopg](https://github.com/aio-libs/aiopg)
 * [ffmpeg](https://ffmpeg.org)
 * [pynacl](https://github.com/pyca/pynacl/)
 * [Astral](https://github.com/sffjunkie/astral)
+* [Bootstrap](https://getbootstrap.com/)
+* [hls.js](https://github.com/video-dev/hls.js/)
 
 ## License
 HomeManager is free and opensource software, it is licensed under GNU GPL 3 (or newer) license. Check `LICENSE` for details.
