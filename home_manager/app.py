@@ -32,7 +32,7 @@ class WebApp(tornado.web.Application):
             (r'/', MainPageHandler),
             (r'/login', LoginHandler),
             (r'/logout', LogoutHandler),
-            (r'/api/user/status', StatusHandler),
+            (r'/api/router/status/user', StatusHandler),
             (r'/api/camera/motion', MotionHandler),
             (r'/api/camera/setup', SetupHandler)
         ]

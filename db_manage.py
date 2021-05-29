@@ -20,6 +20,24 @@ def db_init():
         for query in CreateTableQueries.get_create_queries():
             cur.execute(query)
 
+        cur.execute(InsertQueries.role, ('camera',))
+        role_id = cur.fetchall()[0][0]
+        cur.execute(
+            InsertQueries.role_path,
+            (role_id, '/api/camera/motion', False, True, False, False)
+        )
+        cur.execute(
+            InsertQueries.role_path,
+            (role_id, '/api/camera/setup', True, False, False, False)
+        )
+
+        cur.execute(InsertQueries.role, ('router',))
+        role_id = cur.fetchall()[0][0]
+        cur.execute(
+            InsertQueries.role_path,
+            (role_id, '/api/router/status/user', False, True, False, False)
+        )
+
 
 def add_user(username):
     password = getpass.getpass()
@@ -60,6 +78,7 @@ def add_camera(camera_name, path_video, path_activation):
         cur.execute(
             InsertQueries.camera, (device_id, path_video, path_activation)
         )
+        cur.execute(InsertQueries.role_device, ('camera', device_id))
 
 
 def assign_role(role_name, token_select):

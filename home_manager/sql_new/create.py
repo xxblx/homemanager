@@ -60,12 +60,17 @@ CREATE TABLE homemanager.devices(
     tokens = """
 CREATE TABLE homemanager.tokens(
     token_id INT GENERATED ALWAYS AS IDENTITY,
+    device_id INT,
     token_select INT,
     token_verify BYTEA,
     token_renew TEXT,
     expires_in TIMESTAMP DEFAULT NULL,
     UNIQUE(token_select),
-    PRIMARY KEY(token_id)
+    PRIMARY KEY(token_id),
+    CONSTRAINT fk_tokens_device_id
+        FOREIGN KEY(device_id)
+            REFERENCES homemanager.devices(device_id)
+            ON DELETE CASCADE
 )
 """
     tokens_session = """
@@ -81,26 +86,35 @@ CREATE TABLE homemanager.tokens_session(
 CREATE TABLE homemanager.roles(
     role_id INT GENERATED ALWAYS AS IDENTITY,
     role_name TEXT,
+    UNIQUE(role_name),
+    PRIMARY KEY(role_id)
+)
+"""
+    roles_paths = """
+CREATE TABLE homemanager.roles_paths(
+    role_id INT,
     path TEXT,
     method_get BOOLEAN DEFAULT False,
     method_post BOOLEAN DEFAULT False,
     method_put BOOLEAN DEFAULT False,
     method_delete BOOLEAN DEFAULT False,
-    UNIQUE(role_name),
-    PRIMARY KEY(role_id)
+    CONSTRAINT fk_roles_paths_role_id
+        FOREIGN KEY(role_id)
+            REFERENCES homemanager.roles(role_id)
+            ON DELETE CASCADE
 )
 """
-    roles_tokens = """
-CREATE TABLE homemanager.roles_tokens(
+    roles_devices = """
+CREATE TABLE homemanager.roles_devices(
     role_id INT,
-    token_id INT,
-    CONSTRAINT fk_roles_tokens_role_id
+    device_id INT,
+    CONSTRAINT fk_roles_devices_role_id
         FOREIGN KEY(role_id)
             REFERENCES homemanager.roles(role_id)
             ON DELETE CASCADE,
-    CONSTRAINT fk_roles_tokens_token_id
-        FOREIGN KEY(token_id)
-            REFERENCES homemanager.tokens(token_id)
+    CONSTRAINT fk_roles_devices_device_id
+        FOREIGN KEY(device_id)
+            REFERENCES homemanager.devices(device_id)
             ON DELETE CASCADE
 )
 """
