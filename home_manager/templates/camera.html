@@ -4,8 +4,8 @@
   <li class="nav-item dropdown">
     <a class="nav-link dropdown-toggle" href="#" id="dropdown01" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Video sources</a>
     <div class="dropdown-menu" aria-labelledby="dropdown01">
-    {% for source in sources %}
-        <a class="dropdown-item" href="/source/{{source[0]}}">{{source[1]}}</a>
+    {% for camera in cameras %}
+        <a class="dropdown-item" href="/camera/{{camera[0]}}">{{camera[0]}}</a>
     {% end %}
     </div>
   </li>
@@ -13,9 +13,8 @@
 
 {% block body %}
 <div>
-    <h2>{{sources[source_idx][1]}}</h2>
-    <h4>{{sources[source_idx][2]}}</h4>
-    <video class="video" id="video{{sources[source_idx][0]}}" controls loop style="width: 720px;"></video>
+    <h2>{{cameras[idx][0]}}</h2>
+    <video class="video" id="/video/{{cameras[idx][0]}}/{{cameras[idx][1]}}" controls loop style="width: 720px;"></video>
 </div>
 
 <script>

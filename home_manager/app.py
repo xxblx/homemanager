@@ -2,10 +2,12 @@ import os
 from concurrent.futures import ThreadPoolExecutor
 
 import aiopg
+import nacl.utils
 import tornado.web
 
 from .handlers.auth import LoginHandler, LogoutHandler
-from .handlers.main import MainPageHandler, SourcePageHandler
+from .handlers.main import MainPageHandler
+from .handlers.camera import CameraHandler
 from .handlers.video import VideoServeHandler
 
 from .handlers.api.user import StatusHandler
@@ -30,7 +32,6 @@ class WebApp(tornado.web.Application):
             (r'/', MainPageHandler),
             (r'/login', LoginHandler),
             (r'/logout', LogoutHandler),
-            # (r'/source/([0-9]*/?)', SourcePageHandler),
             (r'/api/user/status', StatusHandler),
             (r'/api/camera/motion', MotionHandler),
             (r'/api/camera/setup', SetupHandler)
@@ -43,13 +44,14 @@ class WebApp(tornado.web.Application):
             )
             # Web page
             handlers.append((
-                r'/camera/{}'.format(camera[0]), SourcePageHandler
+                r'/camera/{}'.format(camera[0]), CameraHandler
             ))
             # Video file
+            fname = os.path.splitext(os.path.basename(camera[1]))[0]
             handlers.append((
-                r'/video/{}/{}'.format(
+                r'/video/{}/({})'.format(
                     camera[0],  # camera name
-                    os.path.basename(camera[1])  # video file name
+                    fname+'[0-9]?\.(m3u8|ts)'
                 ),
                 VideoServeHandler, {'path_video': camera[1]}
             ))
@@ -62,7 +64,7 @@ class WebApp(tornado.web.Application):
             'login_url': '/login',
             'debug': DEBUG,
             'xsrf_cookies': True,
-            'cookie_secret': os.urandom(32)
+            'cookie_secret': nacl.utils.random(size=64)
         }
         super(WebApp, self).__init__(handlers, **settings)
 

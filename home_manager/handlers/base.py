@@ -19,28 +19,16 @@ class BaseHandler(tornado.web.RequestHandler):
         return self.application.db_pool
 
     @property
+    def cameras(self):
+        return self.application.cameras
+
+    @property
     async def db_conn(self):
         return self.db_pool.acquire()
 
     @property
     async def db_cur(self):
         return self.db_conn.cursor()
-
-    @property
-    def videos(self):
-        return self.application.videos
-
-    @property
-    def videos_nums(self):
-        return self.application.videos_nums
-
-    @property
-    def path_units_files(self):
-        return self.application.path_units_files
-
-    @property
-    def path_restrictions(self):
-        return self.application.path_restrictions
 
     async def check_password_hash(self, hashed, password):
         """ Compare entered password with exist password hash

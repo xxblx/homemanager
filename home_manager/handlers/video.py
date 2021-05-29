@@ -12,14 +12,15 @@ class VideoServeHandler(BaseHandler):
     """ Class for aserving videofiles for authenticated users """
     chunk_size = 1024 * 1024  # 1 MiB
     def initialize(self, path_video):
-        self.path_video = path_video
+        self.directory_video = os.path.dirname(path_video)
 
     @tornado.web.authenticated
     async def get(self, file_name, file_ext):
         # Check does file exist
-        if not os.path.exists(self.path_video):
+        fpath = os.path.join(self.directory_video, file_name)
+        if not os.path.exists(fpath):
             raise tornado.web.HTTPError(404)
-        elif not os.path.isfile(self.path_video):
+        elif not os.path.isfile(fpath):
             raise tornado.web.HTTPError(403)
 
         # Headers
@@ -27,16 +28,14 @@ class VideoServeHandler(BaseHandler):
             content_type = 'application/vnd.apple.mpegurl'
         else:
             content_type = 'video/mp2t'
-
-        self.set_header('Content-Length', os.stat(self.path_video).st_size)
+        self.set_header('Content-Length', os.stat(fpath).st_size)
         self.set_header('Content-Type', content_type)
 
-        with open(self.path_video, 'rb') as video_file:
+        with open(fpath, 'rb') as video_file:
             while True:
                 chunk = video_file.read(self.chunk_size)
                 if not chunk:
                     break
-
                 try:
                     self.write(chunk)
                     await self.flush()
