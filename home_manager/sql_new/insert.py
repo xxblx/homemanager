@@ -26,7 +26,7 @@ INSERT INTO homemanager.motions(motion_data, camera_id, motion_time)
 VALUES(%s, %s, %s)
 """
     user_status = """
-INSERT INTO homemanager.user_statuses(user_id, status) VALUES(%s, %s)
+INSERT INTO homemanager.user_statuses(user_id) VALUES(%s)
 """
     role_token = """
 INSERT INTO homemanager.roles_tokens(role_id, token_id)

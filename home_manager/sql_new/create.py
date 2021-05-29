@@ -30,7 +30,7 @@ class CreateTableQueries(CreateQueries):
 
     users = """
 CREATE TABLE homemanager.users(
-    user_id GENERATED ALWAYS AS IDENTITY,
+    user_id INT GENERATED ALWAYS AS IDENTITY,
     username TEXT,
     passwd_hash BYTEA,
     UNIQUE(username),
@@ -51,7 +51,7 @@ CREATE TABLE homemanager.user_statuses(
 
     tokens = """
 CREATE TABLE homemanager.tokens(
-    token_id GENERATED ALWAYS AS IDENTITY,
+    token_id INT GENERATED ALWAYS AS IDENTITY,
     token_select INT,
     token_verify BYTEA,
     token_renew TEXT,
@@ -63,7 +63,7 @@ CREATE TABLE homemanager.tokens(
 
     tokens_session = """
 CREATE TABLE homemanager.tokens_session(
-    token_id GENERATED ALWAYS AS IDENTITY,
+    token_id INT GENERATED ALWAYS AS IDENTITY,
     token TEXT,
     expires_in TIMESTAMP DEFAULT CURRENT_TIMESTAMP + INTERVAL '1 hour',
     UNIQUE(token),
@@ -73,14 +73,15 @@ CREATE TABLE homemanager.tokens_session(
 
     roles = """
 CREATE TABLE homemanager.roles(
-    role_id GENERATED ALWAYS AS IDENTITY,
+    role_id INT GENERATED ALWAYS AS IDENTITY,
     role_name TEXT,
     path TEXT,
     method_get BOOLEAN DEFAULT False,
     method_post BOOLEAN DEFAULT False,
     method_put BOOLEAN DEFAULT False,
     method_delete BOOLEAN DEFAULT False,
-    UNIQUE(role_name)
+    UNIQUE(role_name),
+    PRIMARY KEY(role_id)
 )
 """
 
@@ -100,18 +101,19 @@ CREATE TABLE homemanager.roles_tokens(
 """
 
     cameras = """
-CREATE TABLE IF NOT EXISTS homemanager.cameras(
-    camera_id GENERATED ALWAYS AS IDENTITY,
+CREATE TABLE homemanager.cameras(
+    camera_id INT GENERATED ALWAYS AS IDENTITY,
     camera_name TEXT,
     path_video TEXT,
     path_active TEXT DEFAULT NULL,
-    UNIQUE(path_video)
+    UNIQUE(path_video),
+    PRIMARY KEY(camera_id)
 )
 """
 
     motions = """
-CREATE TABLE IF NOT EXISTS homemanager.motions(
-    motion_id GENERATED ALWAYS AS IDENTITY,
+CREATE TABLE homemanager.motions(
+    motion_id INT GENERATED ALWAYS AS IDENTITY,
     motion_data BYTEA,
     camera_id INT,
     motion_time TIMESTAMP,
