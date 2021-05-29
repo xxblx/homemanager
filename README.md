@@ -124,10 +124,10 @@ Check [this issue](https://github.com/EliasKotlyar/Xiaomi-Dafang-Hacks/issues/40
 
 ## Dependencies and system requirements
 * [Custom firmware](https://github.com/EliasKotlyar/Xiaomi-Dafang-Hacks) for cameras
-* [Python](http://www.python.org) (3.5 or newer) and [Tornado](https://github.com/tornadoweb/tornado) (5.0 or newer)
+* [Python](http://www.python.org) and [Tornado](https://github.com/tornadoweb/tornado)
 * [PostgreSQL](http://www.postgresql.org) and [psycopg2](http://initd.org/psycopg), [aiopg](https://github.com/aio-libs/aiopg)
 * [ffmpeg](https://ffmpeg.org)
-* [bcrypt](https://github.com/pyca/bcrypt)
+* [pynacl](https://github.com/pyca/pynacl/)
 * [Astral](https://github.com/sffjunkie/astral)
 
 ## License
