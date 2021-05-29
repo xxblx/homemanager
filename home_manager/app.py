@@ -51,7 +51,7 @@ class WebApp(tornado.web.Application):
             handlers.append((
                 r'/video/{}/({})'.format(
                     camera[0],  # camera name
-                    fname+'[0-9]?\.(m3u8|ts)'
+                    fname+r'[0-9]?\.(m3u8|ts)'
                 ),
                 VideoServeHandler, {'path_video': camera[1]}
             ))
