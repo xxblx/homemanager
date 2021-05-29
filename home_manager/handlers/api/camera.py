@@ -9,7 +9,8 @@ import tornado.web
 from astral import Location
 
 from ...conf import LOCATION
-from ...sql import SELECT, INSERT
+from ...sql import INSERT
+from ...sql_new.select import SelectQueries
 from .auth import TokenAuthHandler
 
 
@@ -27,7 +28,7 @@ class MotionHandler(TokenAuthHandler):
         # Check does user at home
         async with self.db_pool.acquire() as conn:
             async with conn.cursor() as cur:
-                await cur.execute(SELECT['status'])
+                await cur.execute(SelectQueries.active_users)
                 res = await cur.fetchall()
 
         # Send notifications
@@ -79,7 +80,7 @@ class SetupHandler(TokenAuthHandler):
         # Check does user at home
         async with self.db_pool.acquire() as conn:
             async with conn.cursor() as cur:
-                await cur.execute(SELECT['status'])
+                await cur.execute(SelectQueries.active_users)
                 res = await cur.fetchall()
 
         camera_settings = self.camera_settings.copy()

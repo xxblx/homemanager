@@ -1,5 +1,5 @@
 from .base import ApiHandler
-from ...sql import SELECT
+from ...sql_new.select import SelectQueries
 
 import tornado.web
 
@@ -18,10 +18,10 @@ class TokenAuthHandler(ApiHandler):
         # Check does path have access restrictions
         path = self.request.path.split()[-1]
         if path in self.path_restrictions:
-            select_key = 'access_tokens'
+            query = SelectQueries.access_tokens
             args = (token, self.path_restrictions[path]['id'])
         else:
-            select_key = 'tokens'
+            query = SelectQueries.identity_token
             args = (token,)
 
         # Select identity from db by token
@@ -29,7 +29,7 @@ class TokenAuthHandler(ApiHandler):
         # the result would be empty
         async with self.db_pool.acquire() as conn:
             async with conn.cursor() as cur:
-                await cur.execute(SELECT[select_key], args)
+                await cur.execute(query, args)
                 res = await cur.fetchall()
 
         if not res:

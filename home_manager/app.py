@@ -13,7 +13,7 @@ from .handlers.api.camera import MotionHandler, SetupHandler
 
 from .notifications.manager import NotificationManager
 
-from .sql import SELECT
+from .sql_new.select import SelectQueries
 
 from .conf import DSN, DEBUG
 
@@ -86,10 +86,10 @@ async def init_db():
 
     async with await db_pool.acquire() as conn:
         async with conn.cursor() as cur:
-            await cur.execute(SELECT['video'])
+            await cur.execute(SelectQueries.cameras)
             videos = await cur.fetchall()
 
-            await cur.execute(SELECT['access'])
+            await cur.execute(SelectQueries.access)
             access_list = await cur.fetchall()
 
     return db_pool, videos, access_list

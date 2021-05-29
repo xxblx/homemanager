@@ -9,7 +9,8 @@ import bcrypt
 import psycopg2
 
 from home_manager.conf import DSN
-from home_manager.sql import CREATE, INSERT, SELECT
+from home_manager.sql import CREATE, INSERT
+from home_manager.sql_new.select import SelectQueries
 
 
 def create_tables():
@@ -44,7 +45,7 @@ def insert_access(path, access_name):
 def list_access():
     with psycopg2.connect(DSN) as conn:
         cur = conn.cursor()
-        cur.execute(SELECT['access'])
+        cur.execute(SelectQueries.access)
         res = cur.fetchall()
 
     return res

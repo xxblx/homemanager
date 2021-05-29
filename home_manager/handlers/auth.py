@@ -1,8 +1,7 @@
 import tornado.web
 
-from ..sql import SELECT
+from ..sql_new.select import SelectQueries
 from .base import BaseHandler
-
 
 class LoginHandler(BaseHandler):
     def get(self):
@@ -17,7 +16,7 @@ class LoginHandler(BaseHandler):
 
         async with self.db_pool.acquire() as conn:
             async with conn.cursor() as cur:
-                await cur.execute(SELECT['users'], (username,))
+                await cur.execute(SelectQueries.user_passwd, (username,))
                 _res = await cur.fetchall()
 
         # If user doesn't exist
