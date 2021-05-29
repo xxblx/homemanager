@@ -6,7 +6,8 @@ from datetime import datetime
 
 import tornado.web
 
-from astral import Location
+from astral import LocationInfo
+from astral.sun import sun
 
 from ...conf import LOCATION
 from ...sql import INSERT
@@ -71,10 +72,11 @@ class SetupHandler(TokenAuthHandler):
 
         :return: [`bool` `True` if current time between sunrise and sunset
         """
-        sun = Location(LOCATION).sun()
-        _now = datetime.now(tz=sun['sunrise'].tzinfo)
-
-        return sun['sunrise'] <= _now <= sun['sunset']
+        location = LocationInfo(**LOCATION)
+        datetime_now = datetime.now(tz=location.tzinfo)
+        sun_info = sun(location.observer, date=datetime_now.date(),
+                       tzinfo=location.timezone)
+        return sun_info['sunrise'] <= datetime_now <= sun_info['sunset']
 
     async def get(self):
         # Check does user at home

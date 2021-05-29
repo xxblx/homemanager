@@ -1,18 +1,21 @@
+
 DSN = 'dbname=testdb user=testuser password=testpassword host=127.0.0.1'
 DEBUG = True
 HOST = '127.0.0.1'
 PORT = 8888
 
-# Location is used with `Location` from `astral` module
-# https://astral.readthedocs.io/en/stable/index.html#locations
-LOCATION = (
-    'London',  # city
-    'England',  # region
-    0,  # latitude
-    0,  # longitude
-    'Europe/London',  # time zone
-    0  # elevation
-)
+# LOCATION is required to construct `astral.LocationInfo`
+# Define custom location
+# https://astral.readthedocs.io/en/latest/#custom-location
+# Search location details with `database` and `lookup` from `astral.geocoder`
+# https://astral.readthedocs.io/en/latest/#geocoder
+LOCATION = {
+    'name': 'London',
+    'region': 'England',
+    'timezone': 'Europe/London',
+    'latitude': 51.473333333333336,
+    'longitude': -0.0008333333333333334
+}
 
 NOTIFICATIONS_SETTINGS = {
     'telegram': False,
