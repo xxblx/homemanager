@@ -22,7 +22,7 @@ INSERT INTO homemanager.roles(
 ) VALUES(%s, %s, %s, %s, %s, %s)
 """
     camera = """
-INSERT INTO homemanager.cameras(device_id, path_video, path_active) 
+INSERT INTO homemanager.cameras(device_id, path_video, path_activation) 
 VALUES(%s, %s, %s)
 """
     motion = """

@@ -24,10 +24,10 @@ class LoginHandler(BaseHandler):
             raise tornado.web.HTTPError(403, 'invalid username or password')
 
         # Check password
-        res = _res[0][0].tobytes()
-        passwd_check = await self.verify_password(
-            tornado.escape.utf8(passwd),
-            res
+        passwd_hashed = _res[0][0].tobytes()
+        passwd_check = await self.check_password_hash(
+            passwd_hashed,
+            tornado.escape.utf8(passwd)
         )
         if not passwd_check:
             raise tornado.web.HTTPError(403, 'invalid username or password')

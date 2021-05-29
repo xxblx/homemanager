@@ -15,13 +15,13 @@ from .notifications.manager import NotificationManager
 
 from .sql_new.select import SelectQueries
 
-from .conf import DSN, DEBUG
+from .conf import DSN, DEBUG, WORKERS
 
 
 class WebApp(tornado.web.Application):
     def __init__(self, loop, db_pool, cameras):
         self.loop = loop  # tornado wrapper for asyncio loop
-        self.executor = ThreadPoolExecutor(4)
+        self.pool_executor = ThreadPoolExecutor(max_workers=WORKERS)
         self.db_pool = db_pool
         self.notification_manager = NotificationManager(loop)
         self.cameras_setup = {}
@@ -47,7 +47,7 @@ class WebApp(tornado.web.Application):
             ))
             # Video file
             handlers.append((
-                r'/video/{}/{}})'.format(
+                r'/video/{}/{}'.format(
                     camera[0],  # camera name
                     os.path.basename(camera[1])  # video file name
                 ),

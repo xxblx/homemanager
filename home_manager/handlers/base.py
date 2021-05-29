@@ -1,4 +1,5 @@
-import bcrypt
+
+import nacl.pwhash
 import tornado.web
 import tornado.concurrent
 
@@ -10,8 +11,8 @@ class BaseHandler(tornado.web.RequestHandler):
         return self.application.loop
 
     @property
-    def executor(self):
-        return self.application.executor
+    def pool_executor(self):
+        return self.application.pool_executor
 
     @property
     def db_pool(self):
@@ -41,9 +42,23 @@ class BaseHandler(tornado.web.RequestHandler):
     def path_restrictions(self):
         return self.application.path_restrictions
 
-    @tornado.concurrent.run_on_executor
-    def verify_password(self, passwd, passwd_hash):
-        return bcrypt.checkpw(passwd, passwd_hash)
+    async def check_password_hash(self, hashed, password):
+        """ Compare entered password with exist password hash
+        :param hashed: a hash of a password
+        :type hashed: bytes
+        :param password: a password entered by a user
+        :type password: bytes
+        :return: False if the password is wrong, otherwise - True
+        """
+        try:
+            return await self.loop.run_in_executor(
+                self.pool_executor,
+                nacl.pwhash.verify,
+                hashed,
+                password
+            )
+        except nacl.exceptions.InvalidkeyError:
+            return False
 
     def get_current_user(self):
         return self.get_secure_cookie('username')
