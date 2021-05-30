@@ -1,7 +1,7 @@
 
 class SelectQueries:
     user_passwd = """
-SELECT passwd_hash FROM homemanager.users WHERE username = %s
+SELECT password_hash FROM homemanager.users WHERE username = %s
 """
     active_users = """
 SELECT username_id FROM homemanager.user_statuses WHERE status = True

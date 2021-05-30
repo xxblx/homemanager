@@ -1,9 +1,9 @@
 import os.path
 import tornado.web
-from .base import BaseHandler
+from .base import WebAuthHandler
 
 
-class CameraHandler(BaseHandler):
+class CameraHandler(WebAuthHandler):
     @tornado.web.authenticated
     def get(self):
         camera_name = self.request.path.strip('/').split('/')[-1]

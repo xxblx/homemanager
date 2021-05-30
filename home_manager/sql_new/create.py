@@ -33,7 +33,7 @@ class CreateTableQueries(CreateQueries):
 CREATE TABLE homemanager.users(
     user_id INT GENERATED ALWAYS AS IDENTITY,
     username TEXT,
-    passwd_hash BYTEA,
+    password_hash BYTEA,
     UNIQUE(username),
     PRIMARY KEY(user_id)
 )

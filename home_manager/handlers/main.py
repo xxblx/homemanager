@@ -1,9 +1,9 @@
 import os.path
 import tornado.web
-from .base import BaseHandler
+from .base import WebAuthHandler
 
 
-class MainPageHandler(BaseHandler):
+class MainPageHandler(WebAuthHandler):
     @tornado.web.authenticated
     def get(self):
         cameras = [

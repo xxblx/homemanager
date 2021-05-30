@@ -5,10 +5,10 @@ import tornado.web
 import tornado.iostream
 import tornado.httputil
 
-from .base import BaseHandler
+from .base import WebAuthHandler
 
 
-class VideoServeHandler(BaseHandler):
+class VideoServeHandler(WebAuthHandler):
     """ Class for aserving videofiles for authenticated users """
     chunk_size = 1024 * 1024  # 1 MiB
     def initialize(self, path_video):

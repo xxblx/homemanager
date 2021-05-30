@@ -1,7 +1,7 @@
 
 class InsertQueries:
     user = """
-INSERT INTO homemanager.users(username, passwd_hash) VALUES(%s, %s)
+INSERT INTO homemanager.users(username, password_hash) VALUES(%s, %s)
 RETURNING user_id
 """
     device = """
