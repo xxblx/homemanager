@@ -9,7 +9,7 @@ from .handlers.main import MainPageHandler
 from .handlers.camera import CameraHandler
 from .handlers.video import VideoServeHandler
 
-from .handlers.api.user import StatusHandler
+from .handlers.api.router import UserStatusHandler
 from .handlers.api.camera import MotionHandler, SetupHandler
 
 from .notifications.manager import NotificationManager
@@ -32,7 +32,7 @@ class WebApp(tornado.web.Application):
             (r'/', MainPageHandler),
             (r'/login', LoginHandler),
             (r'/logout', LogoutHandler),
-            (r'/api/router/status/user', StatusHandler),
+            (r'/api/router/status/user', UserStatusHandler),
             (r'/api/camera/motion', MotionHandler),
             (r'/api/camera/setup', SetupHandler)
         ]

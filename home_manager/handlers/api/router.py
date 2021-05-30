@@ -1,22 +1,18 @@
 import tornado.web
 
-from ...sql import UPDATE
+from ...sql_new.update import UpdateQueries
 from .base import ApiHandler
 
 
-class StatusHandler(ApiHandler):
-    """ Class for users statuses updates """
-
+class UserStatusHandler(ApiHandler):
     @tornado.web.authenticated
     async def post(self):
-        username_id = self.get_argument('username_id')
+        user_id = self.get_argument('user_id')
         status = self.get_argument('status')
-
         if int(status) == 1:
             status = True
         else:
             status = False
-
         async with self.db_pool.acquire() as conn:
             async with conn.cursor() as cur:
-                await cur.execute(UPDATE['status'], (status, username_id))
+                await cur.execute(UpdateQueries.user_status, (status, user_id))
