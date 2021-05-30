@@ -2,9 +2,7 @@
 
 {% block dropdown %}
 <li class="nav-item dropdown">
-<a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-Cameras
-</a>
+<a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">Cameras</a>
 <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
     {% for camera in cameras %}
     <li><a class="dropdown-item" href="/camera/{{camera[0]}}">{{camera[0]}}</a></li>
@@ -14,17 +12,14 @@ Cameras
 {% end %}
 
 {% block body %}
-
 {% for camera in cameras %}
 <div>
-    <a href="/camera/{{camera[0]}}">{{camera[0]}}</a> - {{camera[0]}}
-    <br />
-    <video class="video" id="/video/{{camera[0]}}/{{camera[1]}}" controls loop style="width: 480px;"></video>
+    <a href="/camera/{{camera[0]}}">{{camera[0]}}</a><br />
+    <video class="video" id="/video/{{camera[0]}}/{{camera[1]}}" controls loop style="width: 40%;"></video>
 </div>
 {% end %}
 
 <script>
 playAllVideos();
 </script>
-
 {% end %}

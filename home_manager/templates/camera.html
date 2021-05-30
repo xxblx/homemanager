@@ -2,9 +2,7 @@
 
 {% block dropdown %}
 <li class="nav-item dropdown">
-<a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-Cameras
-</a>
+<a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">Cameras</a>
 <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
     {% for camera in cameras %}
     <li><a class="dropdown-item" href="/camera/{{camera[0]}}">{{camera[0]}}</a></li>
@@ -16,7 +14,7 @@ Cameras
 {% block body %}
 <div>
     <h2>{{cameras[idx][0]}}</h2>
-    <video class="video" id="/video/{{cameras[idx][0]}}/{{cameras[idx][1]}}" controls loop style="width: 720px;"></video>
+    <video class="video" id="/video/{{cameras[idx][0]}}/{{cameras[idx][1]}}" controls loop style="width: 100%;"></video>
 </div>
 
 <script>
