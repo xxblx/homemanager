@@ -61,7 +61,7 @@ CREATE TABLE homemanager.devices(
 CREATE TABLE homemanager.tokens(
     token_id INT GENERATED ALWAYS AS IDENTITY,
     device_id INT,
-    token_select INT,
+    token_select BIGINT,
     token_verify BYTEA,
     token_renew TEXT,
     expires_in TIMESTAMP DEFAULT NULL,
@@ -76,10 +76,16 @@ CREATE TABLE homemanager.tokens(
     tokens_session = """
 CREATE TABLE homemanager.tokens_session(
     token_id INT GENERATED ALWAYS AS IDENTITY,
+    device_id INT,
     token TEXT,
+    permanent_requested BOOLEAN DEFAULT False,
     expires_in TIMESTAMP DEFAULT CURRENT_TIMESTAMP + INTERVAL '1 hour',
     UNIQUE(token),
-    PRIMARY KEY(token_id)
+    PRIMARY KEY(token_id),
+    CONSTRAINT fk_tokens_session_device_id
+        FOREIGN KEY(device_id)
+            REFERENCES homemanager.devices(device_id)
+            ON DELETE CASCADE
 )
 """
     roles = """

@@ -9,12 +9,20 @@ INSERT INTO homemanager.devices(device_name, device_type) VALUES(%s, %s)
 RETURNING device_id
 """
     token_session = """
-INSERT INTO homemanager.tokens_session(token)
+INSERT INTO homemanager.tokens_session(device_id, token, permanent_requested)
+SELECT
+    d.device_id, %s, %s
+FROM
+    homemanager.devices d
+WHERE
+    d.device_name = %s
 """
     tokens = """
 INSERT INTO homemanager.tokens(
     device_id, token_select, token_verify, token_renew, expires_in
-) VALUES(%s, %s, %s, %s, %s)
+) 
+VALUES(%s, %s, %s, %s, %s)
+RETURNING CAST(FLOOR(EXTRACT(EPOCH FROM expires_in)) as INT)
 """
     role = """
 INSERT INTO homemanager.roles(role_name) VALUES(%s)

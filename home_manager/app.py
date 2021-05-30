@@ -9,6 +9,7 @@ from .handlers.main import MainPageHandler
 from .handlers.camera import CameraHandler
 from .handlers.video import VideoServeHandler
 
+from .handlers.api.tokens import ApiTokensNewHandler
 from .handlers.api.router import UserStatusHandler
 from .handlers.api.camera import MotionHandler, SetupHandler
 
@@ -16,7 +17,8 @@ from .notifications.manager import NotificationManager
 
 from .sql_new.select import SelectQueries
 
-from .conf import DSN, DEBUG, WORKERS, MAC_KEY, COOKIE_SECRET
+from .conf import (DSN, DEBUG, WORKERS, MAC_KEY, COOKIE_SECRET,
+                   TOKEN_EXPIRES_TIME)
 
 
 class WebApp(tornado.web.Application):
@@ -25,6 +27,7 @@ class WebApp(tornado.web.Application):
         self.pool_executor = ThreadPoolExecutor(max_workers=WORKERS)
         self.db_pool = db_pool
         self.mac_key = MAC_KEY
+        self.token_expires_time = TOKEN_EXPIRES_TIME
         self.notification_manager = NotificationManager(loop)
         self.cameras_setup = {}
 
@@ -32,6 +35,7 @@ class WebApp(tornado.web.Application):
             (r'/', MainPageHandler),
             (r'/login', LoginHandler),
             (r'/logout', LogoutHandler),
+            (r'/api/tokens/new', ApiTokensNewHandler),
             (r'/api/router/status/user', UserStatusHandler),
             (r'/api/camera/motion', MotionHandler),
             (r'/api/camera/setup', SetupHandler)

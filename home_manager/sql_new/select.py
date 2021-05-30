@@ -20,6 +20,10 @@ FROM
 WHERE
     t.token_select = %s and (t.expires_in >= now() or t.expires_in is NULL)
 """
+    token_session = """
+SELECT device_id, permanent_requested
+FROM homemanager.tokens_session WHERE expires_in >= now()
+"""
     device_role = """
 SELECT
     r.role_name

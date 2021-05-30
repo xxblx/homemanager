@@ -9,6 +9,7 @@ PORT = 8888
 WORKERS = multiprocessing.cpu_count()
 MAC_KEY = nacl.utils.random(size=64)
 COOKIE_SECRET = nacl.utils.random(size=64)
+TOKEN_EXPIRES_TIME = 7200  # seconds
 
 # LOCATION is required to construct `astral.LocationInfo`
 # Define custom location

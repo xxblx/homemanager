@@ -1,13 +1,16 @@
 #!/usr/bin/env python3
 
+import json
 import getpass
 import argparse
 from uuid import uuid4
 
+from urllib.parse import urljoin, urlencode
+from urllib.request import Request, urlopen
 import nacl.pwhash
 import psycopg2
 
-from home_manager.conf import DSN
+from home_manager.conf import DSN, HOST, PORT
 from home_manager.sql_new.create import CreateTableQueries, CreateSchemaQueries
 from home_manager.sql_new.insert import InsertQueries
 
@@ -49,12 +52,17 @@ def add_user(username):
         cur.execute(InsertQueries.user_status, (user_id,))
 
 
-def add_token(permanent):
+def add_token(device_name, permanent):
     token = uuid4().hex
     with psycopg2.connect(DSN) as conn:
         cur = conn.cursor()
-        cur.execute(InsertQueries.token_session, (token,))
-    # TODO: use api to get tokens pair
+        cur.execute(
+            InsertQueries.token_session, (token, permanent, device_name)
+        )
+    url = urljoin('http://{}:{}'.format(HOST, PORT), '/api/tokens/new')
+    req = Request(url, data=urlencode({'token_session': token}).encode())
+    resp = urlopen(req)
+    return json.loads(resp.read())
 
 
 def add_camera(camera_name, path_video, path_activation):
@@ -89,7 +97,7 @@ def main():
         },
         'token-add': {
             'func': add_token,
-            'kw': ['permanent']
+            'kw': ['device_name', 'permanent']
         },
         'camera-add': {
             'func': add_camera,
@@ -114,6 +122,7 @@ def main():
 
     token_add = subparsers.add_parser('token-add')
     token_add.set_defaults(used='token-add')
+    token_add.add_argument('-n', '--device-name', type=str, required=True)
     # TODO: default=False
     token_add.add_argument('-p', '--permanent', action='store_true',
                            default=True)
