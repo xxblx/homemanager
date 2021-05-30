@@ -1,10 +1,10 @@
 import tornado.web
 
 from ...sql import UPDATE
-from .auth import TokenAuthHandler
+from .base import ApiHandler
 
 
-class StatusHandler(TokenAuthHandler):
+class StatusHandler(ApiHandler):
     """ Class for users statuses updates """
 
     @tornado.web.authenticated

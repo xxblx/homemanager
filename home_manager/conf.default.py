@@ -1,11 +1,14 @@
 
 import multiprocessing
+import nacl.utils
 
 DSN = 'dbname=testdb user=testuser password=testpassword host=127.0.0.1'
 DEBUG = True
 HOST = '127.0.0.1'
 PORT = 8888
 WORKERS = multiprocessing.cpu_count()
+MAC_KEY = nacl.utils.random(size=64)
+COOKIE_SECRET = nacl.utils.random(size=64)
 
 # LOCATION is required to construct `astral.LocationInfo`
 # Define custom location

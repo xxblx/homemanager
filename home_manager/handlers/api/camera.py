@@ -12,10 +12,10 @@ from astral.sun import sun
 from ...conf import LOCATION
 from ...sql import INSERT
 from ...sql_new.select import SelectQueries
-from .auth import TokenAuthHandler
+from .base import ApiHandler
 
 
-class MotionHandler(TokenAuthHandler):
+class MotionHandler(ApiHandler):
     """ Class for capturing motion pictures from cameras """
 
     @tornado.web.authenticated
@@ -50,7 +50,7 @@ class MotionHandler(TokenAuthHandler):
                 await cur.execute(INSERT['motion'], values)
 
 
-class SetupHandler(TokenAuthHandler):
+class SetupHandler(ApiHandler):
     """ Class for sharing setting to cameras """
 
     camera_settings = {'night_mode': 0, 'rtsp': 0, 'motion_detect': 0}

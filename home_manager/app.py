@@ -2,7 +2,6 @@ import os
 from concurrent.futures import ThreadPoolExecutor
 
 import aiopg
-import nacl.utils
 import tornado.web
 
 from .handlers.auth import LoginHandler, LogoutHandler
@@ -17,7 +16,7 @@ from .notifications.manager import NotificationManager
 
 from .sql_new.select import SelectQueries
 
-from .conf import DSN, DEBUG, WORKERS
+from .conf import DSN, DEBUG, WORKERS, MAC_KEY, COOKIE_SECRET
 
 
 class WebApp(tornado.web.Application):
@@ -25,6 +24,7 @@ class WebApp(tornado.web.Application):
         self.loop = loop  # tornado wrapper for asyncio loop
         self.pool_executor = ThreadPoolExecutor(max_workers=WORKERS)
         self.db_pool = db_pool
+        self.mac_key = MAC_KEY
         self.notification_manager = NotificationManager(loop)
         self.cameras_setup = {}
 
@@ -64,7 +64,7 @@ class WebApp(tornado.web.Application):
             'login_url': '/login',
             'debug': DEBUG,
             'xsrf_cookies': True,
-            'cookie_secret': nacl.utils.random(size=64)
+            'cookie_secret': COOKIE_SECRET
         }
         super(WebApp, self).__init__(handlers, **settings)
 
