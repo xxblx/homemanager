@@ -32,7 +32,7 @@ FROM
     INNER JOIN homemanager.roles_paths rp on rd.role_id = rp.role_id
     INNER JOIN homemanager.roles r on rd.role_id = r.role_id
 WHERE
-    rd.device_id = %s and path = %s and '{method_col}' = True
+    rd.device_id = %s and path = %s and {method_col} = True
 """
 
     #identity_token = 'SELECT identity, token_id FROM tokens_t WHERE token = %s'
