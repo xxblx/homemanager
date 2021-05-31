@@ -12,10 +12,59 @@ from astral.sun import sun
 from ...conf import LOCATION
 from ...sql import INSERT
 from ...sql_new.select import SelectQueries
+from ...sql_new.update import UpdateQueries
 from .base import ApiHandler
 
 
-class MotionHandler(ApiHandler):
+class ApiCameraHandler(ApiHandler):
+    path_activation = None
+    device_settings = None
+    md_changed = False
+    _settings_default = {
+        'stream': False, 'motion_detection': False, 'night_mode': False
+    }
+
+    @staticmethod
+    def check_night():
+        """ Check is current time between sunrise and sunset """
+        location = LocationInfo(**LOCATION)
+        datetime_now = datetime.now(tz=location.tzinfo)
+        sun_info = sun(location.observer, date=datetime_now.date(),
+                       tzinfo=location.timezone)
+        return sun_info['sunrise'] <= datetime_now < sun_info['sunset']
+
+    async def check_active_users(self):
+        res = await self.execute_query(SelectQueries.active_users)
+        return bool(res['data'])
+
+    async def prepare_settings(self):
+        res = await self.execute_query(SelectQueries.camera_settings,
+                                       args=(self.current_user['device_id'],))
+        settings = dict(zip(res['columns'], res['data'][0]))
+        self.path_activation = settings.pop('path_activation')
+        _was_active = settings['motion_detection']
+
+        if await self.check_active_users():
+            settings = self._settings_default
+        else:
+            settings['stream'], settings['motion_detection'] = True, True
+            if self.check_night():
+                settings['night_mode'] = True
+
+        self.md_changed = settings['motion_detection'] == _was_active
+        self.device_settings = settings
+
+    async def save_settings(self):
+        await self.execute_query(UpdateQueries.camera_settings, args=(
+            self.device_settings['stream'],
+            self.device_settings['motion_detection'],
+            self.device_settings['night_mode'],
+            self.current_user['device_id']
+            ), fetch=False
+        )
+
+
+class MotionHandler(ApiCameraHandler):
     """ Class for capturing motion pictures from cameras """
 
     @tornado.web.authenticated
@@ -50,84 +99,25 @@ class MotionHandler(ApiHandler):
                 await cur.execute(INSERT['motion'], values)
 
 
-class SetupHandler(ApiHandler):
-    """ Class for sharing setting to cameras """
-
-    camera_settings = {'night_mode': 0, 'rtsp': 0, 'motion_detect': 0}
-
-    @property
-    def cameras_setup(self):
-        return self.application.cameras_setup
-
-    @property
-    def active_file(self):
-        """ Get path of 'active' file in identity's directory
-
-        :return: [:class:`str`] path to 'active' file
-        """
-        return self.path_units_files[self.current_user['identity']]
-
-    def check_sun(self):
-        """ Check is current time between sunrise and sunset
-
-        :return: [`bool` `True` if current time between sunrise and sunset
-        """
-        location = LocationInfo(**LOCATION)
-        datetime_now = datetime.now(tz=location.tzinfo)
-        sun_info = sun(location.observer, date=datetime_now.date(),
-                       tzinfo=location.timezone)
-        return sun_info['sunrise'] <= datetime_now <= sun_info['sunset']
-
+class SetupHandler(ApiCameraHandler):
+    @tornado.web.authenticated
     async def get(self):
-        # Check does user at home
-        async with self.db_pool.acquire() as conn:
-            async with conn.cursor() as cur:
-                await cur.execute(SelectQueries.active_users)
-                res = await cur.fetchall()
-
-        camera_settings = self.camera_settings.copy()
-
-        # Turn on RTSP and motion detect if users are not at home
-        if not res:
-            # `ffmpeg-rtsp-hls.service` uses path-based activation
-            if not os.path.exists(self.active_file):
-                open(self.active_file, 'a').close()
-
-            for k in ('rtsp', 'motion_detect'):
-                camera_settings[k] = 1
-
-            # Night mode depends on local time
-            if not self.check_sun():
-                camera_settings['night_mode'] = 1
-
+        await self.prepare_settings()
+        # Use path to activate systemd service
+        if self.device_settings['stream']:
+            if not os.path.exists(self.path_activation):
+                open(self.path_activation, 'a').close()
         else:
-            if os.path.exists(self.active_file):
-                os.remove(self.active_file)
-
-        if self.current_user['identity'] not in self.cameras_setup:
-            self.cameras_setup[self.current_user['identity']] = camera_settings
-        else:
-            # If motion detection has been switched send a log message
-            motion_detect = camera_settings['motion_detect']
-            motion_detect_prev = self.cameras_setup[
-                self.current_user['identity']
-            ]['motion_detect']
-
-            if motion_detect != motion_detect_prev:
-                if motion_detect == 1:
-                    status = 'on'
-                else:
-                    status = 'off'
-
-                await self.notification_manager.send_log(
-                    datetime.now(),
-                    self.current_user['identity'],
-                    status
-                )
-
-            # Save new settings
-            self.cameras_setup[self.current_user['identity']].update(
-                camera_settings
+            if os.path.exists(self.path_activation):
+                os.remove(self.path_activation)
+        # Send notification
+        if self.md_changed:
+            status = 'on' if self.device_settings['motion_detection'] else 'off'
+            await self.notification_manager.send_log(
+                datetime.now(),
+                self.current_user['device_name'],
+                status
             )
-
-        self.write(camera_settings)
+        # Save and apply settings
+        await self.save_settings()
+        self.write(self.device_settings)

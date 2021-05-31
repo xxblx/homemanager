@@ -129,6 +129,9 @@ CREATE TABLE homemanager.cameras(
     device_id INT,
     path_video TEXT,
     path_activation TEXT DEFAULT NULL,
+    stream BOOLEAN DEFAULT False,
+    motion_detection BOOLEAN DEFAULT False,
+    night_mode BOOLEAN DEFAULT False,
     UNIQUE(path_video),
     CONSTRAINT fk_cameras_device_id
         FOREIGN KEY(device_id)

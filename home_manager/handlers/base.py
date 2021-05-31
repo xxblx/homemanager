@@ -23,14 +23,6 @@ class BaseHandler(tornado.web.RequestHandler):
     def cameras(self):
         return self.application.cameras
 
-    @property
-    async def db_conn(self):
-        return self.db_pool.acquire()
-
-    @property
-    async def db_cur(self):
-        return self.db_conn.cursor()
-
     async def check_user(self, username, password):
         """ Check given username and password
         :param username: username
@@ -71,6 +63,18 @@ class BaseHandler(tornado.web.RequestHandler):
             )
         except nacl.exceptions.InvalidkeyError:
             return False
+
+    async def execute_query(self, query, fetch=True, args=None):
+        results = None
+        async with self.db_pool.acquire() as conn:
+            async with conn.cursor() as cur:
+                await cur.execute(query, args)
+                if fetch:
+                    results = {
+                        'data': await cur.fetchall(),
+                        'columns': [i.name for i in cur.description]
+                    }
+        return results
 
 
 class WebAuthHandler(BaseHandler):

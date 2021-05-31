@@ -84,10 +84,8 @@ class ApiHandler(BaseApiHandler):
         if not check_token:
             raise tornado.web.HTTPError(403, 'invalid tokens')
         current_user = {
-            # TODO: are device_id and token_select required here?
             'device_id': device_id,
-            'username': device_name,
-            'token_select': token_select
+            'device_name': device_name
         }
 
         # Check access to the path

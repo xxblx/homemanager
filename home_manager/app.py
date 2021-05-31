@@ -29,7 +29,6 @@ class WebApp(tornado.web.Application):
         self.mac_key = MAC_KEY
         self.token_expires_time = TOKEN_EXPIRES_TIME
         self.notification_manager = NotificationManager(loop)
-        self.cameras_setup = {}
 
         handlers = [
             (r'/', MainPageHandler),
