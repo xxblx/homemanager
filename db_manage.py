@@ -10,13 +10,13 @@ from urllib.request import Request, urlopen
 import nacl.pwhash
 import psycopg2
 
-from homemanager.conf import DSN, HOST, PORT
+from homemanager.conf import DB_SETTINGS, HOST, PORT
 from homemanager.sql_new.create import CreateTableQueries, CreateSchemaQueries
 from homemanager.sql_new.insert import InsertQueries
 
 
 def db_init():
-    with psycopg2.connect(DSN) as conn:
+    with psycopg2.connect(**DB_SETTINGS) as conn:
         cur = conn.cursor()
         for query in CreateSchemaQueries.get_create_queries():
             cur.execute(query)
@@ -45,7 +45,7 @@ def db_init():
 def add_user(username):
     password = getpass.getpass()
     password_hash = nacl.pwhash.str(password.encode())
-    with psycopg2.connect(DSN) as conn:
+    with psycopg2.connect(**DB_SETTINGS) as conn:
         cur = conn.cursor()
         cur.execute(InsertQueries.user, (username, password_hash))
         user_id = cur.fetchall()[0][0]
@@ -54,7 +54,7 @@ def add_user(username):
 
 def add_token(device_name, permanent):
     token = uuid4().hex
-    with psycopg2.connect(DSN) as conn:
+    with psycopg2.connect(**DB_SETTINGS) as conn:
         cur = conn.cursor()
         cur.execute(
             InsertQueries.token_session, (token, permanent, device_name)
@@ -66,7 +66,7 @@ def add_token(device_name, permanent):
 
 
 def add_camera(camera_name, path_video, path_activation):
-    with psycopg2.connect(DSN) as conn:
+    with psycopg2.connect(**DB_SETTINGS) as conn:
         cur = conn.cursor()
         cur.execute(InsertQueries.device, (camera_name, 'camera'))
         device_id = cur.fetchall()[0][0]
@@ -77,7 +77,7 @@ def add_camera(camera_name, path_video, path_activation):
 
 
 def add_router(router_name):
-    with psycopg2.connect(DSN) as conn:
+    with psycopg2.connect(**DB_SETTINGS) as conn:
         cur = conn.cursor()
         cur.execute(InsertQueries.device, (router_name, 'router'))
         device_id = cur.fetchall()[0][0]

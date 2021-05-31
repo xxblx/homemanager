@@ -17,7 +17,7 @@ from .notifications.manager import NotificationManager
 
 from .sql_new.select import SelectQueries
 
-from .conf import (DSN, DEBUG, WORKERS, MAC_KEY, COOKIE_SECRET,
+from .conf import (DB_SETTINGS, DEBUG, WORKERS, MAC_KEY, COOKIE_SECRET,
                    TOKEN_EXPIRES_TIME)
 
 
@@ -76,7 +76,7 @@ async def init_db():
     """ Connect to database and get initial data
     :return: connection_pool, list of cameras
     """
-    db_pool = await aiopg.create_pool(dsn=DSN)
+    db_pool = await aiopg.create_pool(**DB_SETTINGS)
     async with await db_pool.acquire() as conn:
         async with conn.cursor() as cur:
             await cur.execute(SelectQueries.cameras)
