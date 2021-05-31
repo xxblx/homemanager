@@ -12,6 +12,7 @@ import psycopg2
 
 from homemanager.conf import DB_SETTINGS, HOST, PORT
 from homemanager.sql_new.create import CreateTableQueries, CreateSchemaQueries
+from homemanager.sql_new.delete import DeleteQueries
 from homemanager.sql_new.insert import InsertQueries
 
 
@@ -52,14 +53,20 @@ def add_user(username):
         cur.execute(InsertQueries.user_status, (user_id,))
 
 
-def add_token(device_name, permanent):
+def add_session_token(device_name, permanent):
     token = uuid4().hex
     with psycopg2.connect(**DB_SETTINGS) as conn:
         cur = conn.cursor()
         cur.execute(
             InsertQueries.token_session, (token, permanent, device_name)
         )
-    url = urljoin('http://{}:{}'.format(HOST, PORT), '/api/tokens/new')
+    return token
+
+
+def add_token(device_name, permanent):
+    token = add_session_token(device_name, permanent)
+    base_url = 'http://{}:{}'.format(HOST, PORT)
+    url = urljoin(base_url, '/api/tokens/new')
     req = Request(url, data=urlencode({'token_session': token}).encode())
     resp = urlopen(req)
     return json.loads(resp.read())
@@ -83,6 +90,12 @@ def add_router(router_name):
         device_id = cur.fetchall()[0][0]
         cur.execute(InsertQueries.router, (device_id,))
         cur.execute(InsertQueries.role_device, ('router', device_id))
+
+
+def delete_device(device_name):
+    with psycopg2.connect(**DB_SETTINGS) as conn:
+        cur = conn.cursor()
+        cur.execute(DeleteQueries.device_name, (device_name,))
 
 
 def main():
