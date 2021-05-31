@@ -12,12 +12,23 @@
 {% end %}
 
 {% block body %}
+<div class="row row-cols-1 row-cols-md-2 g-4">
 {% for camera in cameras %}
-<div>
-    <a href="/camera/{{camera[0]}}">{{camera[0]}}</a><br />
-    <video class="video" id="/video/{{camera[0]}}/{{camera[1]}}" controls loop style="width: 40%;"></video>
-</div>
+    <div class="col">
+        <div class="card" style="width: 18rem;">
+            <div class="card-body">
+                <h5 class="card-title"><a href="/camera/{{camera[0]}}">{{camera[0]}}</a></h5>
+                <p class="card-text">
+                    <ul class="list-unstyled">
+                        <li>TODO: show camera settings</li>
+                    </ul>
+                </p>
+            </div>
+            <video class="video" id="/video/{{camera[0]}}/{{camera[1]}}" controls loop style="width: 100%;"></video>
+        </div>
+    </div>
 {% end %}
+</div>
 
 <script>
 playAllVideos();
