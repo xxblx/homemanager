@@ -69,7 +69,7 @@ class TelegramBackend:
             caption,
             photo
         )
-        await self.client.fetch(
+        await self.http_client.fetch(
             self.photo_url,
             method='POST',
             headers=headers,
