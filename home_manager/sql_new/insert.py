@@ -46,7 +46,7 @@ VALUES(%s, %s, %s)
 INSERT INTO homemanager.routers(device_id) VALUES(%s)
 """
     motion = """
-INSERT INTO homemanager.motions(motion_data, camera_id, motion_time) 
+INSERT INTO homemanager.motions(motion_data, device_id, motion_time) 
 VALUES(%s, %s, %s)
 """
     user_status = """

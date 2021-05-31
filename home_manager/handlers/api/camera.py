@@ -10,7 +10,7 @@ from astral import LocationInfo
 from astral.sun import sun
 
 from ...conf import LOCATION
-from ...sql import INSERT
+from ...sql_new.insert import InsertQueries
 from ...sql_new.select import SelectQueries
 from ...sql_new.update import UpdateQueries
 from .base import ApiHandler
@@ -37,7 +37,7 @@ class ApiCameraHandler(ApiHandler):
         res = await self.execute_query(SelectQueries.active_users)
         return bool(res['data'])
 
-    async def prepare_settings(self):
+    async def request_settings(self):
         res = await self.execute_query(SelectQueries.camera_settings,
                                        args=(self.current_user['device_id'],))
         settings = dict(zip(res['columns'], res['data'][0]))
@@ -65,44 +65,34 @@ class ApiCameraHandler(ApiHandler):
 
 
 class MotionHandler(ApiCameraHandler):
-    """ Class for capturing motion pictures from cameras """
-
     @tornado.web.authenticated
     async def post(self):
         datetime_now = datetime.now()
         pic = self.request.files['pic'][0]
-
         if pic['content_type'] != 'image/jpeg':
             raise tornado.web.HTTPError(400)
 
-        # Check does user at home
-        async with self.db_pool.acquire() as conn:
-            async with conn.cursor() as cur:
-                await cur.execute(SelectQueries.active_users)
-                res = await cur.fetchall()
+        await self.request_settings()
+        if not self.device_settings['motion_detection']:
+            return
 
-        # Send notifications
-        if not res:
-            await self.notification_manager.send_notification(
-                datetime_now,
-                self.current_user['identity'],
-                pic['body']
-            )
+        # Send notification
+        await self.notification_manager.send_notification(
+            datetime_now,
+            self.current_user['device_name'],
+            pic['body']
+        )
 
         # Save base64 encoded photo in db
         pic_encoded = base64.encodebytes(pic['body'])
-        now = mktime(datetime_now.utctimetuple())
-        values = (pic_encoded, self.current_user['identity'], now)
-
-        async with self.db_pool.acquire() as conn:
-            async with conn.cursor() as cur:
-                await cur.execute(INSERT['motion'], values)
+        args = (pic_encoded, self.current_user['device_id'], datetime_now)
+        await self.execute_query(InsertQueries.motion, fetch=False, args=args)
 
 
 class SetupHandler(ApiCameraHandler):
     @tornado.web.authenticated
     async def get(self):
-        await self.prepare_settings()
+        await self.request_settings()
         # Use path to activate systemd service
         if self.device_settings['stream']:
             if not os.path.exists(self.path_activation):
