@@ -12,7 +12,7 @@ def main():
     db_pool, cameras = loop.asyncio_loop.run_until_complete(
         init_db()
     )
-    app = WebApp(loop, db_pool, cameras)
+    app = WebApp(loop.asyncio_loop, db_pool, cameras)
     http_server = tornado.httpserver.HTTPServer(app)
     http_server.listen(PORT, HOST)
     try:
