@@ -3,8 +3,8 @@
 import tornado.httpserver
 import tornado.ioloop
 
-from home_manager.app import WebApp, init_db
-from home_manager.conf import HOST, PORT
+from homemanager.app import WebApp, init_db
+from homemanager.conf import HOST, PORT
 
 
 def main():

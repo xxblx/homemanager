@@ -10,9 +10,9 @@ from urllib.request import Request, urlopen
 import nacl.pwhash
 import psycopg2
 
-from home_manager.conf import DSN, HOST, PORT
-from home_manager.sql_new.create import CreateTableQueries, CreateSchemaQueries
-from home_manager.sql_new.insert import InsertQueries
+from homemanager.conf import DSN, HOST, PORT
+from homemanager.sql_new.create import CreateTableQueries, CreateSchemaQueries
+from homemanager.sql_new.insert import InsertQueries
 
 
 def db_init():
