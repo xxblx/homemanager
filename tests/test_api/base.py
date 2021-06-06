@@ -1,12 +1,13 @@
 from urllib.parse import urljoin, urlencode
+from tornado.httputil import url_concat
 from datetime import datetime
 from time import mktime
 
-import tornado.ioloop
+import json
 import pytest
-from tornado.httputil import url_concat
+import tornado.ioloop
 
-from db_manage import add_camera, add_router, delete_device
+from db_manage import add_camera, add_router, add_session_token, delete_device
 from homemanager.app import WebApp, init_db
 
 PATH = {
@@ -29,6 +30,14 @@ async def fetch(http_client, base_url, path, method, params=None):
         # Workaround `ValueError: Body must not be None for method PUT`
         parameters['body'] = ''
     return await http_client.fetch(**parameters)
+
+
+async def get_tokens(http_client, base_url, device):
+    token_session = add_session_token(device, True)
+    r = await fetch(http_client, base_url, PATH['new_tokens'], 'POST',
+                    params={'token_session': token_session})
+    r_dct = json.loads(r.body)
+    return {k: r_dct[k] for k in ('token_select', 'token_verify')}
 
 
 @pytest.fixture

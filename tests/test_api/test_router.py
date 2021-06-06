@@ -1,20 +1,16 @@
 from uuid import uuid4
-import json
 import pytest
 
-from .base import PATH, fetch, app, router
-from db_manage import add_session_token
+from .base import PATH, fetch, get_tokens, app, router
 
 
 @pytest.mark.gen_test
 async def test_status_update(http_client, base_url, router):
-    token_session = add_session_token(router, True)
-    r = await fetch(http_client, base_url, PATH['new_tokens'], 'POST',
-                    params={'token_session': token_session})
-    assert r.code == 200
-    tokens = json.loads(r.body)
+    tokens = await get_tokens(http_client, base_url, router)
+    r = await fetch(http_client, base_url, PATH['setup'], 'GET',
+                    params=tokens)
     params = {'user_id': 1, 'status': 1}
-    params.update({k: tokens[k] for k in ('token_select', 'token_verify')})
+    params.update(tokens)
 
     # Correct tokens and method
     r = await fetch(http_client, base_url, PATH['update_user_status'], 'POST',
@@ -47,12 +43,7 @@ async def test_status_update(http_client, base_url, router):
 
 @pytest.mark.gen_test
 async def test_router_wrong_role(http_client, base_url, router):
-    token_session = add_session_token(router, True)
-    r = await fetch(http_client, base_url, PATH['new_tokens'], 'POST',
-                    params={'token_session': token_session})
-    tokens = json.loads(r.body)
-    tokens = {k: tokens[k] for k in ('token_select', 'token_verify')}
-
+    tokens = await get_tokens(http_client, base_url, router)
     r = await fetch(http_client, base_url, PATH['setup'], 'GET',
                     params=tokens)
     assert r.code == 401
