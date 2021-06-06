@@ -31,11 +31,13 @@ async def test_camera_motion(http_client, base_url, camera):
     r = await upload_picture(http_client, base_url, pic_data, params=tokens,
                              method='POST')
     assert r.code == 200
+
     # Wrong tokens
     tokens['token_select'] = 123
     r = await upload_picture(http_client, base_url, pic_data, params=tokens,
                              method='POST')
     assert r.code == 403
+
     # Without tokens
     tokens['token_select'] = 123
     r = await upload_picture(http_client, base_url, pic_data, params=dict(),
