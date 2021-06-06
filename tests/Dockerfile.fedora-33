@@ -17,7 +17,8 @@ RUN dnf install -y postgresql \
 RUN mkdir -p /home/hmuser/homemanager/homemanager
 RUN mkdir -p /home/hmuser/homemanager/tests
 RUN mkdir -p /home/hmuser/homemanager/video-test
+RUN mkdir -p /home/hmuser/homemanager/motion-test
 RUN ln -s /home/hmuser/homemanager /homemanager
+RUN chown -R hmuser:hmuser /homemanager/
 
 CMD [ "/sbin/init" ]
-
