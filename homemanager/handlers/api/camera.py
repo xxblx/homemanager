@@ -34,12 +34,12 @@ class ApiCameraHandler(ApiHandler):
         return sun_info['sunrise'] <= datetime_now < sun_info['sunset']
 
     async def check_active_users(self):
-        res = await self.execute_query(SelectQueries.active_users)
-        return bool(res['data'])
+        res = await self.db_fetch(SelectQueries.active_users)
+        return bool(res)
 
     async def request_settings(self):
-        res = await self.execute_query(SelectQueries.camera_settings,
-                                       args=(self.current_user['device_id'],))
+        res = await self.db_fetch(SelectQueries.camera_settings,
+                                  (self.current_user['device_id'],))
         settings = dict(zip(res['columns'], res['data'][0]))
         self.path_activation = settings.pop('path_activation')
         _was_active = settings['motion_detection']
@@ -55,13 +55,12 @@ class ApiCameraHandler(ApiHandler):
         self.device_settings = settings
 
     async def save_settings(self):
-        await self.execute_query(UpdateQueries.camera_settings, args=(
+        await self.db_execute(UpdateQueries.camera_settings, (
             self.device_settings['stream'],
             self.device_settings['motion_detection'],
             self.device_settings['night_mode'],
             self.current_user['device_id']
-            ), fetch=False
-        )
+        ))
 
 
 class MotionHandler(ApiCameraHandler):
@@ -86,7 +85,7 @@ class MotionHandler(ApiCameraHandler):
         # Save base64 encoded photo in db
         pic_encoded = base64.encodebytes(pic['body'])
         args = (pic_encoded, self.current_user['device_id'], datetime_now)
-        await self.execute_query(InsertQueries.motion, fetch=False, args=args)
+        await self.db_execute(InsertQueries.motion, args)
 
 
 class SetupHandler(ApiCameraHandler):

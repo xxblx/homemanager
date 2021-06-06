@@ -46,15 +46,12 @@ class BaseTokensHandler(BaseApiHandler):
 
         args = (device_id, token_select, token_verify_hash, token_renew,
                 expires_in)
-        async with self.db_pool.acquire() as conn:
-            async with conn.cursor() as cur:
-                await cur.execute(InsertQueries.tokens, args)
-                res = await cur.fetchall()
+        res = await self.db_fetch(InsertQueries.tokens, args)
         tokens = {
             'token_select': token_select,
             'token_verify': token_verify,
             'token_renew': token_renew,
-            'expires_in': res[0][0]
+            'expires_in': res['data'][0][0]
         }
         return tokens
 
@@ -75,10 +72,7 @@ class ApiTokensNewHandler(BaseTokensHandler):
 
         tokens = await self.generate_tokens(*res[0])
         # Delete used token_session
-        async with self.db_pool.acquire() as conn:
-            async with conn.cursor() as cur:
-                await cur.execute(DeleteQueries.token_session, (token_session,))
-
+        await self.db_execute(DeleteQueries.token_session, (token_session,))
         self.write(tokens)
 
 

@@ -13,6 +13,4 @@ class UserStatusHandler(ApiHandler):
             status = True
         else:
             status = False
-        async with self.db_pool.acquire() as conn:
-            async with conn.cursor() as cur:
-                await cur.execute(UpdateQueries.user_status, (status, user_id))
+        await self.db_execute(UpdateQueries.user_status, (status, user_id))

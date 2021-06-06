@@ -72,12 +72,9 @@ class ApiHandler(BaseApiHandler):
 
         # Check tokens validity
         check_token = False
-        async with self.db_pool.acquire() as conn:
-            async with conn.cursor() as cur:
-                await cur.execute(SelectQueries.token_auth, (token_select,))
-                res = await cur.fetchall()
+        res = await self.db_fetch(SelectQueries.token_auth, (token_select,))
         if res:
-            device_id, device_name, token_verify_hashed = res[0]
+            device_id, device_name, token_verify_hashed = res['data'][0]
             token_verify_hashed = token_verify_hashed.tobytes()
             if await self.check_token_verify(token_verify, token_verify_hashed):
                 check_token = True
@@ -91,13 +88,10 @@ class ApiHandler(BaseApiHandler):
         # Check access to the path
         path = self.request.path.rstrip('/')
         method = Identifier('method_{}'.format(self.request.method.lower()))
-        async with self.db_pool.acquire() as conn:
-            async with conn.cursor() as cur:
-                await cur.execute(
-                    SQL(SelectQueries.device_role).format(method_col=method),
-                    (device_id, path)
-                )
-                res = await cur.fetchall()
+        res = await self.db_fetch(
+            SQL(SelectQueries.device_role).format(method_col=method),
+            (device_id, path)
+        )
         if not res:
             raise tornado.web.HTTPError(401)
         self.current_user = current_user

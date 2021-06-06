@@ -33,18 +33,14 @@ class BaseHandler(tornado.web.RequestHandler):
             otherwise - False
         :rtype: bool
         """
-        async with self.db_pool.acquire() as conn:
-            async with conn.cursor() as cur:
-                await cur.execute(SelectQueries.user_passwd, (username,))
-                _res = await cur.fetchall()
-
-        _check = False
-        if _res:
-            _check = await self.check_password_hash(
-                _res[0][0].tobytes(),
+        res = await self.db_fetch(SelectQueries.user_passwd, (username,))
+        check = False
+        if res:
+            check = await self.check_password_hash(
+                res['data'][0][0].tobytes(),
                 tornado.escape.utf8(password)
             )
-        return _check
+        return check
 
     async def check_password_hash(self, hashed, password):
         """ Compare entered password with exist password hash
@@ -64,17 +60,25 @@ class BaseHandler(tornado.web.RequestHandler):
         except nacl.exceptions.InvalidkeyError:
             return False
 
-    async def execute_query(self, query, fetch=True, args=None):
+    async def _execute_sql(self, query, fetch=True, args=None):
         results = None
         async with self.db_pool.acquire() as conn:
             async with conn.cursor() as cur:
                 await cur.execute(query, args)
                 if fetch:
-                    results = {
-                        'data': await cur.fetchall(),
-                        'columns': [i.name for i in cur.description]
-                    }
+                    data = await cur.fetchall()
+                    if data:
+                        results = {
+                            'data': data,
+                            'columns': [i.name for i in cur.description]
+                        }
         return results
+
+    async def db_fetch(self, query, args=None):
+        return await self._execute_sql(query, fetch=True, args=args)
+
+    async def db_execute(self, query, args=None):
+        return await self._execute_sql(query, fetch=False, args=args)
 
 
 class WebAuthHandler(BaseHandler):
