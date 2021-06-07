@@ -34,7 +34,9 @@ class VideoServeHandler(WebAuthHandler):
 
         with open(fpath, 'rb') as video_file:
             while True:
-                chunk = video_file.read(self.chunk_size)
+                chunk = await self.loop.run_in_executor(
+                    self.pool_executor, video_file.read, self.chunk_size
+                )
                 if not chunk:
                     break
                 try:
