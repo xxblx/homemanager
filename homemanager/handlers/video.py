@@ -9,8 +9,9 @@ from .base import WebAuthHandler
 
 
 class VideoServeHandler(WebAuthHandler):
-    """ Class for aserving videofiles for authenticated users """
     chunk_size = 1024 * 1024  # 1 MiB
+    directory_video = None
+
     def initialize(self, path_video):
         self.directory_video = os.path.dirname(path_video)
 
