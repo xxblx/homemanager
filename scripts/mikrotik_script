@@ -1,8 +1,9 @@
 
-:local accessToken "token";
+:local tokenSelect "token_select";
+:local tokenVerify "token_veridy";
 :local baseUrl "host/api/user/status";
 
-:local checkUserDevice [/ip dhcp-server lease find mac-address="device_mac_address"]; 
+:local checkUserDevice [/ip dhcp-server lease find mac-address="device_mac_address"];
 
 :local userId 1;
 
@@ -11,5 +12,4 @@
     :set userAtHome 1;
 }
 
-/tool fetch mode=http url=$baseUrl http-method=post http-data="token=$accessToken&username_id=$userId&status=$userAtHome"
-
+/tool fetch mode=http url=$baseUrl http-method=post http-data="token_select=$tokenSelect&token_verify=$tokenVerify&user_id=$userId&status=$userAtHome"

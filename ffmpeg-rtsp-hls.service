@@ -4,10 +4,10 @@ After=network.target
 
 [Service]
 User=hmuser
-ExecStartPre=/usr/bin/mkdir -p /path/camera-identity/video
-ExecStartPre=/usr/bin/chmod go-rwx /path/camera-identity
-ExecStart=/usr/bin/ffmpeg -i rtsp://ip:port -fflags flush_packets -max_delay 1 -an -flags -global_header -hls_time 4 -hls_list_size 3 -hls_wrap 3 -vcodec copy -y /path/camera-identity/video/video.m3u8
-ExecStopPost=/usr/bin/rm -rf /path/camera-identity/video
+ExecStartPre=/usr/bin/mkdir -p /tmp/hmuser/camera/video
+ExecStartPre=/usr/bin/chmod go-rwx /tmp/hmuser/camera
+ExecStart=/usr/bin/ffmpeg -i rtsp://ip:port/unicast -fflags flush_packets -max_delay 1 -an -flags -global_header -hls_time 4 -hls_list_size 3 -hls_wrap 3 -vcodec copy -y /tmp/hmuser/camera/video/video.m3u8
+ExecStopPost=/usr/bin/rm -rf /tmp/hmuser/camera/video
 Restart=on-failure
 RestartSec=60
 

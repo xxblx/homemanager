@@ -6,7 +6,7 @@ source /system/sdcard/config/userscripts/camera_module
 if [ ! -f /system/sdcard/swapfile ]; then
     dd if=/dev/zero of=/system/sdcard/swapfile bs=1M count=64
     mkswap /system/sdcard/swapfile
-fi 
+fi
 
 swapon /system/sdcard/swapfile
 
@@ -14,6 +14,5 @@ night_off
 /system/sdcard/controlscripts/rtsp-h264 stop
 motion_detect_off
 
-# Request camera's setting from server 
-/system/sdcard/config/userscripts/camera_setup_script 
-
+# Request camera's setting from server
+/system/sdcard/config/userscripts/camera_setup_script

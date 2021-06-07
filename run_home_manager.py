@@ -1,23 +1,20 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 
 import tornado.httpserver
 import tornado.ioloop
 
-from home_manager.app import WebApp, init_db
-from home_manager.conf import HOST, PORT
+from homemanager.app import WebApp, init_db
+from homemanager.conf import HOST, PORT
 
 
 def main():
     loop = tornado.ioloop.IOLoop.current()
-    db_pool, videos, access_list = loop.asyncio_loop.run_until_complete(
+    db_pool, cameras = loop.asyncio_loop.run_until_complete(
         init_db()
     )
-    app = WebApp(loop, db_pool, videos, access_list)
-
+    app = WebApp(loop.asyncio_loop, db_pool, cameras)
     http_server = tornado.httpserver.HTTPServer(app)
     http_server.listen(PORT, HOST)
-
     try:
         loop.start()
     except KeyboardInterrupt:
