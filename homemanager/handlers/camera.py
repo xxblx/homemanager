@@ -2,7 +2,7 @@ import os.path
 import tornado.web
 
 from .base import WebAuthHandler
-from ..sql_new.select import SelectQueries
+from ..sql.select import SelectQueries
 
 
 class CameraHandler(WebAuthHandler):

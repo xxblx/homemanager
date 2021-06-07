@@ -3,7 +3,7 @@ import nacl.pwhash
 import tornado.web
 import tornado.concurrent
 
-from ..sql_new.select import SelectQueries
+from ..sql.select import SelectQueries
 
 
 class BaseHandler(tornado.web.RequestHandler):

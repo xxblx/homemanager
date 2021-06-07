@@ -1,6 +1,6 @@
 import tornado.web
 
-from ...sql_new.update import UpdateQueries
+from ...sql.update import UpdateQueries
 from .base import ApiHandler
 
 

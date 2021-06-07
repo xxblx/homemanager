@@ -11,9 +11,9 @@ import nacl.pwhash
 import psycopg2
 
 from homemanager.conf import DB_SETTINGS, HOST, PORT
-from homemanager.sql_new.create import CreateTableQueries, CreateSchemaQueries
-from homemanager.sql_new.delete import DeleteQueries
-from homemanager.sql_new.insert import InsertQueries
+from homemanager.sql.create import CreateTableQueries, CreateSchemaQueries
+from homemanager.sql.delete import DeleteQueries
+from homemanager.sql.insert import InsertQueries
 
 
 def db_init():

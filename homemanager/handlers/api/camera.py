@@ -10,9 +10,9 @@ from astral import LocationInfo
 from astral.sun import sun
 
 from ...conf import LOCATION
-from ...sql_new.insert import InsertQueries
-from ...sql_new.select import SelectQueries
-from ...sql_new.update import UpdateQueries
+from ...sql.insert import InsertQueries
+from ...sql.select import SelectQueries
+from ...sql.update import UpdateQueries
 from .base import ApiHandler
 
 

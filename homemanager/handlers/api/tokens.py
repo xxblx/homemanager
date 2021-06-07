@@ -5,9 +5,9 @@ from uuid import uuid1, uuid4
 import tornado.web
 
 from .base import BaseApiHandler
-from ...sql_new.select import SelectQueries
-from ...sql_new.insert import InsertQueries
-from ...sql_new.delete import DeleteQueries
+from ...sql.select import SelectQueries
+from ...sql.insert import InsertQueries
+from ...sql.delete import DeleteQueries
 
 
 class BaseTokensHandler(BaseApiHandler):

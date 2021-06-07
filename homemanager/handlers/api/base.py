@@ -8,7 +8,7 @@ import tornado.escape
 import tornado.web
 
 from ..base import BaseHandler
-from ...sql_new.select import SelectQueries
+from ...sql.select import SelectQueries
 
 
 class BaseApiHandler(BaseHandler):

@@ -15,7 +15,7 @@ from .handlers.api.camera import MotionHandler, SetupHandler
 
 from .notifications.manager import NotificationManager
 
-from .sql_new.select import SelectQueries
+from .sql.select import SelectQueries
 
 from .conf import (DB_SETTINGS, DEBUG, WORKERS, MAC_KEY, COOKIE_SECRET,
                    TOKEN_EXPIRES_TIME)
