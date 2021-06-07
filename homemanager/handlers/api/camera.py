@@ -1,7 +1,6 @@
 import os
 import base64
 
-from time import mktime
 from datetime import datetime
 
 import tornado.web
