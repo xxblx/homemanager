@@ -40,12 +40,8 @@ class WebApp(tornado.web.Application):
             (r'/api/camera/setup', SetupHandler)
         ]
 
-        self.cameras = {}
         for camera in cameras:
-            self.cameras[camera[0]] = dict(
-                zip(['device_name', 'path_video', 'path_activation'], camera)
-            )
-            # Web page
+            # Camera page
             handlers.append((
                 r'/camera/{}'.format(camera[0]), CameraHandler
             ))

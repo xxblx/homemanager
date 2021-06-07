@@ -19,10 +19,6 @@ class BaseHandler(tornado.web.RequestHandler):
     def db_pool(self):
         return self.application.db_pool
 
-    @property
-    def cameras(self):
-        return self.application.cameras
-
     async def check_user(self, username, password):
         """ Check given username and password
         :param username: username

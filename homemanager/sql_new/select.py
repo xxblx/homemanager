@@ -11,6 +11,11 @@ SELECT d.device_name, c.path_video, c.path_activation
 FROM homemanager.cameras c INNER JOIN homemanager.devices d 
     on c.device_id = d.device_id
 """
+    cameras_detailed = """
+SELECT d.device_name, c.path_video, c.stream, c.motion_detection, c.night_mode
+FROM homemanager.cameras c INNER JOIN homemanager.devices d 
+    on c.device_id = d.device_id
+"""
     camera_settings = """
 SELECT path_activation, stream, motion_detection, night_mode
 FROM homemanager.cameras WHERE device_id = %s
