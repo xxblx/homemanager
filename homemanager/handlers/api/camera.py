@@ -99,7 +99,7 @@ class SetupHandler(ApiCameraHandler):
             if os.path.exists(self.path_activation):
                 os.remove(self.path_activation)
         # Send notification
-        if self.md_changed:
+        if not self.md_changed:
             status = 'on' if self.device_settings['motion_detection'] else 'off'
             await self.notification_manager.send_log(
                 datetime.now(),
