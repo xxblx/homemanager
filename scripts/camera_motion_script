@@ -14,8 +14,10 @@ touch ${lock_file}
 
 /system/sdcard/bin/getimage > ${jpg_file}
 
-/system/sdcard/bin/curl -i -X POST -H "Content-Type: multipart/form-data" -F "token=${TOKEN}" -F "pic=@${jpg_file}" $URL_MOTION
+/system/sdcard/bin/curl -i -X POST -H "Content-Type: multipart/form-data" \
+  -F "token_select=${TOKEN_SELECT}" \
+  -F "token_verify=${TOKEN_VERIFY}" \
+  -F "pic=@${jpg_file}" $URL_MOTION
 
 rm -rf ${jpg_file}
 rm -rf ${lock_file}
-
