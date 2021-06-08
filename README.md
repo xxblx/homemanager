@@ -67,14 +67,16 @@ mount -o remount,rw /system/sdcard
 ```
 Check [this issue](https://github.com/EliasKotlyar/Xiaomi-Dafang-Hacks/issues/409). 
 
-## Dependencies, built-in libraries and system requirements
+## Dependencies and bundled libraries
 * [Python](http://www.python.org) and [Tornado](https://github.com/tornadoweb/tornado)
 * [PostgreSQL](http://www.postgresql.org) and [psycopg2](http://initd.org/psycopg), [aiopg](https://github.com/aio-libs/aiopg)
 * [ffmpeg](https://ffmpeg.org)
 * [pynacl](https://github.com/pyca/pynacl/)
 * [Astral](https://github.com/sffjunkie/astral)
 * [Bootstrap](https://getbootstrap.com/)
-* [hls.js](https://github.com/video-dev/hls.js/)
+* [HLS.js](https://github.com/video-dev/hls.js/)
 
 ## License
 HomeManager is free and opensource software. Check LICENSE for details.
+
+Bundled libraries: Bootstrap - [MIT](https://getbootstrap.com/docs/5.0/about/license/), HLS.js - [Apache 2.0](https://github.com/video-dev/hls.js/blob/v1.0.4/LICENSE). 
