@@ -24,13 +24,13 @@ class ApiCameraHandler(ApiHandler):
     }
 
     @staticmethod
-    def check_night():
-        """ Check is current time between sunrise and sunset """
+    def is_night():
+        """ Check is it night now """
         location = LocationInfo(**LOCATION)
         datetime_now = datetime.now(tz=location.tzinfo)
         sun_info = sun(location.observer, date=datetime_now.date(),
                        tzinfo=location.timezone)
-        return sun_info['sunrise'] <= datetime_now < sun_info['sunset']
+        return not (sun_info['sunrise'] <= datetime_now < sun_info['sunset'])
 
     async def check_active_users(self):
         res = await self.db_fetch(SelectQueries.active_users)
@@ -47,7 +47,7 @@ class ApiCameraHandler(ApiHandler):
             settings = self._settings_default
         else:
             settings['stream'], settings['motion_detection'] = True, True
-            if self.check_night():
+            if self.is_night():
                 settings['night_mode'] = True
 
         self.md_changed = settings['motion_detection'] == _was_active
