@@ -40,7 +40,7 @@ $ ./db_manage user-add -u username
 * Run `/system/sdcard/config/userscripts/camera_startup_script` 
 * Add `/system/sdcard/config/userscripts/camera_setup_script` to crontab
   * `# crontab -c /system/sdcard/config/cron/crontabs -e`
-  * Append `*/5     *       *       *       *       /system/sdcard/config/userscripts/camera_setup_script` - in this example the command executes every 5 minutes.
+  * Append `*/5     *       *       *       *       /system/sdcard/config/userscripts/camera_setup_script > /system/sdcard/config/userscripts/camera_setup_log` - in this example the command executes every 5 minutes and saves the last configuration json to the log file.
 
 # Additional information
 ## Motion detect

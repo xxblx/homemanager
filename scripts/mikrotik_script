@@ -1,7 +1,7 @@
 
 :local tokenSelect "token_select";
-:local tokenVerify "token_veridy";
-:local baseUrl "host/api/user/status";
+:local tokenVerify "token_verify";
+:local baseUrl "host/api/router/status/user";
 
 :local checkUserDevice [/ip dhcp-server lease find mac-address="device_mac_address"];
 
