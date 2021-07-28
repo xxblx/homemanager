@@ -16,12 +16,12 @@ HomeManager supports Xiaomi Xiaofang 1S cameras flashed with the [custom firmwar
 # dnf install python3-tornado python3-aiopg python3-psycopg2 python3-astral python3-pynacl
 # systemctl enable --now ffmpeg-rtsp-hls.path
 $ ./db_manage.py init
-$ ./db_manage router-add -n mikrotik
-$ ./db_manage camera-add -n camera1 -p /path/to/video.m3u8 -a /path/from/ffmpeg-rtsp-hls.path
+$ ./db_manage.py router-add -n mikrotik
+$ ./db_manage.py camera-add -n camera1 -p /path/to/video.m3u8 -a /path/from/ffmpeg-rtsp-hls.path
 # systemd enable --now homemanager.service
-$ ./db_manage token-add -n mikrotik
-$ ./db_manage token-add -n camera1
-$ ./db_manage user-add -u username
+$ ./db_manage.py token-add -n mikrotik
+$ ./db_manage.py token-add -n camera1
+$ ./db_manage.py user-add -u username
 ```
 
 ## Mikrotik
@@ -43,8 +43,8 @@ $ ./db_manage user-add -u username
   * Append `*/5     *       *       *       *       /system/sdcard/config/userscripts/camera_setup_script > /system/sdcard/config/userscripts/camera_setup_log` - in this example the command executes every 5 minutes and saves the last configuration json to the log file.
 
 # Additional information
-## Motion detect
-Cameras need swap to be enabled for motion detection. See [this issue](https://github.com/EliasKotlyar/Xiaomi-Dafang-Hacks/issues/552). Note, `script/camera_startup_script` includes all required steps. If you followed the installation instructions, additional actions are not required. 
+## Motion detection
+Cameras require swap for motion detection. See [this issue](https://github.com/EliasKotlyar/Xiaomi-Dafang-Hacks/issues/552). Note, `script/camera_startup_script` includes all required steps. If you followed the installation instructions, additional actions are not required. 
 
 ### Telegram notifications
 * Set `NOTIFICATIONS_SETTINGS['telegram']` = `True` in `homemanager/conf.py`
