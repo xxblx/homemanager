@@ -1,0 +1,33 @@
+# Clone from the Fedora 35 image
+FROM registry.fedoraproject.org/fedora:35
+
+# As of November 7 2021 python3-aiopg package from the Fedora repository is quite outdated
+# and doesn't work properly in Python 3.10 due to
+# TypeError: As of 3.10, the *loop* parameter was removed from Condition() since it is no longer necessary
+# $ rpm -qa | grep aiopg
+# python3-aiopg-1.0.0-7.fc35.noarch
+# A workaround is to use aiopg from pypi until an updated version available in the Fedora repository
+
+RUN useradd -s /sbin/nologin -m hmuser
+RUN dnf upgrade -y
+RUN dnf install -y postgresql \
+    postgresql-server \
+    postgresql-contrib \
+    python3-tornado \
+    python3-psycopg2 \
+    # python3-aiopg \
+    python3-pip \
+    python3-pytest \
+    python3-pytest-tornado \
+    python3-pynacl \
+    python3-astral \
+    findutils
+RUN pip install aiopg==1.3.3
+RUN mkdir -p /home/hmuser/homemanager/homemanager
+RUN mkdir -p /home/hmuser/homemanager/tests
+RUN mkdir -p /home/hmuser/homemanager/video-test
+RUN mkdir -p /home/hmuser/homemanager/motion-test
+RUN ln -s /home/hmuser/homemanager /homemanager
+RUN chown -R hmuser:hmuser /homemanager/
+
+CMD [ "/sbin/init" ]

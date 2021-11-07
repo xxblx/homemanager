@@ -1,0 +1,24 @@
+# Clone from the Fedora 34 image
+FROM registry.fedoraproject.org/fedora:34
+
+RUN useradd -s /sbin/nologin -m hmuser
+RUN dnf upgrade -y
+RUN dnf install -y postgresql \
+    postgresql-server \
+    postgresql-contrib \
+    python3-tornado \
+    python3-psycopg2 \
+    python3-aiopg \
+    python3-pytest \
+    python3-pytest-tornado \
+    python3-pynacl \
+    python3-astral \
+    findutils
+RUN mkdir -p /home/hmuser/homemanager/homemanager
+RUN mkdir -p /home/hmuser/homemanager/tests
+RUN mkdir -p /home/hmuser/homemanager/video-test
+RUN mkdir -p /home/hmuser/homemanager/motion-test
+RUN ln -s /home/hmuser/homemanager /homemanager
+RUN chown -R hmuser:hmuser /homemanager/
+
+CMD [ "/sbin/init" ]
